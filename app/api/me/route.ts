@@ -105,6 +105,12 @@ export async function GET(request: NextRequest) {
     } catch (error) {
         console.error("GET /api/me error:", error);
 
-        return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+        return NextResponse.json(
+            {
+                step: "catch",
+                error: error instanceof Error ? error.message : String(error),
+            },
+            { status: 500 }
+        );
     }
 }
