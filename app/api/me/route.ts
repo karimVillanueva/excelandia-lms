@@ -1,37 +1,43 @@
 import { NextRequest, NextResponse } from "next/server";
+import { createItem, readItems } from "@directus/sdk";
+import { directus } from "@/lib/directus";
 import { verifyToken } from "@/lib/cognito";
 
-import {
-    readItems
-} from "@directus/sdk";
-
-import { directus } from "@/lib/directus";
-
-export async function GET(
-    request: NextRequest
-) {
+export async function GET(request: NextRequest) {
     try {
-        const token =
-            request.cookies.get("id_token")?.value;
+        const token = request.cookies.get("id_token")?.value;
 
         if (!token) {
+            return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+        }
+
+        const payload = await verifyToken(token);
+
+        const email = payload.email as string;
+        const cognitoSub = payload.sub as string;
+
+        if (!email || !cognitoSub) {
             return NextResponse.json(
-                { error: "Unauthorized" },
+                { error: "Invalid token payload" },
                 { status: 401 }
             );
         }
 
-        const payload =
-            await verifyToken(token);
+        let accounts = await directus.request(
+            readItems("student_accounts", {
+                filter: {
+                    cognito_sub: {
+                        _eq: cognitoSub,
+                    },
+                },
+                limit: 1,
+            })
+        );
 
-        const email =
-            payload.email as string;
+        let account = accounts[0];
 
-        const sub =
-            payload.sub as string;
-
-        const accounts =
-            await directus.request(
+        if (!account) {
+            accounts = await directus.request(
                 readItems("student_accounts", {
                     filter: {
                         email: {
@@ -42,68 +48,52 @@ export async function GET(
                 })
             );
 
-        if (!accounts.length) {
-            return NextResponse.json(
-                {
-                    authenticated: true,
+            account = accounts[0];
+        }
+
+        if (!account) {
+            account = await directus.request(
+                createItem("student_accounts", {
                     email,
-                    sub,
-                    account: null,
-                }
+                    cognito_sub: cognitoSub,
+                    status: "active",
+                })
             );
         }
 
-        const account = accounts[0];
-
-        const students =
-            await directus.request(
-                readItems("students", {
-                    filter: {
-                        account_id: {
-                            _eq: account.id,
-                        },
+        const students = await directus.request(
+            readItems("students", {
+                filter: {
+                    account_id: {
+                        _eq: account.id,
                     },
-                    limit: 1,
-                })
-            );
+                },
+                limit: 1,
+            })
+        );
 
-        const enrollments =
-            await directus.request(
-                readItems(
-                    "student_enrollments",
-                    {
-                        filter: {
-                            account_id: {
-                                _eq: account.id,
-                            },
-                        },
-                        fields: [
-                            "*",
-                            "course_id.*",
-                        ],
-                    }
-                )
-            );
+        const enrollments = await directus.request(
+            readItems("student_enrollments", {
+                filter: {
+                    account_id: {
+                        _eq: account.id,
+                    },
+                },
+                fields: ["*", "course_id.*"],
+            })
+        );
 
         return NextResponse.json({
             authenticated: true,
             email,
-            sub,
+            cognito_sub: cognitoSub,
             account,
-            student:
-                students[0] ?? null,
+            student: students[0] ?? null,
             enrollments,
         });
     } catch (error) {
-        console.error(error);
+        console.error("GET /api/me error:", error);
 
-        return NextResponse.json(
-            {
-                error: "Unauthorized",
-            },
-            {
-                status: 401,
-            }
-        );
+        return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 }

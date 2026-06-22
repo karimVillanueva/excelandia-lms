@@ -9,6 +9,7 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@directus/sdk": "^22.0.0",
     "aws-amplify": "^6.18.0",
     "jose": "^6.2.3",
     "next": "^16.2.9",
@@ -17,12 +18,12 @@
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
-    "@types/node": "^20",
+    "@types/node": "^26",
     "@types/react": "^19",
     "@types/react-dom": "^19",
-    "eslint": "^9",
+    "eslint": "^10",
     "eslint-config-next": "16.2.9",
     "tailwindcss": "^4",
-    "typescript": "^5"
+    "typescript": "^6"
   }
 }
