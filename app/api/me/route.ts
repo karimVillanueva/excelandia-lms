@@ -8,6 +8,17 @@ export async function GET(request: NextRequest) {
         const token = request.cookies.get("id_token")?.value;
 
         if (!token) {
+            return NextResponse.json(
+                {
+                    step: "cookie",
+                    error: "No id_token cookie found",
+                },
+                { status: 401 }
+            );
+        }
+
+
+        if (!token) {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
         }
 
