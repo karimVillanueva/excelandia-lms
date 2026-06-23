@@ -18,21 +18,21 @@ export default function HomePage() {
           href="/"
           className="text-sm font-bold uppercase tracking-[0.35em] text-emerald-400 transition hover:scale-105 hover:text-emerald-300"
         >
-          Excelandia LMS
+          Academia Excelandia
         </a>
 
         <a
-          href={storeUrl}
+          href="/soporte"
           className="rounded-full border border-slate-700 px-4 py-2 text-sm font-semibold text-slate-300 transition hover:-translate-y-0.5 hover:border-emerald-400 hover:text-white"
         >
-          Comprar acceso
+          Centro de ayuda
         </a>
       </header>
 
-      <section className="relative z-10 mx-auto flex min-h-[calc(100vh-96px)] max-w-6xl flex-col items-center justify-center px-6 pb-20 text-center">
+      <section className="relative z-10 mx-auto flex min-h-[calc(100vh-160px)] max-w-6xl flex-col items-center justify-center px-6 pb-20 text-center">
         <div className="mb-5 inline-flex animate-pulse items-center gap-2 rounded-full border border-emerald-400/30 bg-emerald-400/10 px-4 py-2 text-sm text-emerald-300">
           <span className="h-2 w-2 rounded-full bg-emerald-400" />
-          Plataforma de aprendizaje activa
+          Portal de alumnos
         </div>
 
         <h1 className="max-w-4xl text-5xl font-black leading-tight tracking-tight md:text-7xl">
@@ -44,7 +44,7 @@ export default function HomePage() {
 
         <p className="mt-6 max-w-2xl text-lg leading-8 text-slate-300 md:text-xl">
           Usa el correo con el que realizaste tu compra. Si todavía no tienes
-          acceso, compra un material en la tienda de Excelandia.
+          acceso, visita la tienda de Excelandia.
         </p>
 
         <div className="mt-10 flex flex-col gap-4 sm:flex-row">
@@ -62,7 +62,7 @@ export default function HomePage() {
             href={storeUrl}
             className="rounded-2xl border border-slate-700 bg-slate-900/60 px-9 py-4 font-bold text-white backdrop-blur transition hover:-translate-y-1 hover:scale-105 hover:border-emerald-400 hover:bg-slate-800"
           >
-            Comprar acceso
+            Ir a la tienda
           </a>
         </div>
 
@@ -70,9 +70,11 @@ export default function HomePage() {
           <div className="rounded-2xl border border-slate-800 bg-slate-900/40 px-4 py-3 backdrop-blur transition hover:-translate-y-1 hover:border-emerald-400/60 hover:text-slate-200">
             Acceso anual
           </div>
+
           <div className="rounded-2xl border border-slate-800 bg-slate-900/40 px-4 py-3 backdrop-blur transition hover:-translate-y-1 hover:border-emerald-400/60 hover:text-slate-200">
             Materiales digitales
           </div>
+
           <div className="rounded-2xl border border-slate-800 bg-slate-900/40 px-4 py-3 backdrop-blur transition hover:-translate-y-1 hover:border-emerald-400/60 hover:text-slate-200">
             Recuperación segura
           </div>
@@ -83,6 +85,26 @@ export default function HomePage() {
           de recuperación de la plataforma.
         </p>
       </section>
+
+      <footer className="relative z-10 border-t border-slate-800 py-6">
+        <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 px-6 text-sm text-slate-500 md:flex-row">
+          <p>© 2026 Excelandia. Todos los derechos reservados.</p>
+
+          <div className="flex gap-6">
+            <a href="/soporte" className="transition hover:text-slate-300">
+              Centro de ayuda
+            </a>
+
+            <a href="/privacidad" className="transition hover:text-slate-300">
+              Privacidad
+            </a>
+
+            <a href="/terminos" className="transition hover:text-slate-300">
+              Términos
+            </a>
+          </div>
+        </div>
+      </footer>
     </main>
   );
 }
