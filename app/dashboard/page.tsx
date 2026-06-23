@@ -7,76 +7,94 @@ export default function DashboardPage() {
 
     if (loading) {
         return (
-            <div className="p-10">
-                Cargando...
-            </div>
+            <main className="min-h-screen bg-[#02070F] p-10 text-white">
+                <p>Cargando...</p>
+            </main>
         );
     }
 
+    if (!me) {
+        return (
+            <main className="min-h-screen bg-[#02070F] p-10 text-white">
+                <h1 className="text-2xl font-bold">No se pudo cargar tu cuenta</h1>
+                <p className="mt-3 text-slate-400">
+                    Intenta cerrar sesión e iniciar sesión nuevamente.
+                </p>
+            </main>
+        );
+    }
+
+    const enrollments = me.enrollments ?? [];
+    const displayName = me.student
+        ? `${me.student.first_name} ${me.student.last_name}`
+        : me.email;
+
     return (
-        <main className="max-w-6xl mx-auto p-10">
-            <h1 className="text-4xl font-bold mb-2">
-                Bienvenido
-            </h1>
+        <main className="min-h-screen bg-[#02070F] text-white">
+            <section className="mx-auto max-w-6xl px-6 py-10">
+                <header className="mb-10">
+                    <p className="text-sm font-semibold uppercase tracking-[0.3em] text-emerald-400">
+                        Excelandia LMS
+                    </p>
 
-            <p className="text-slate-500 mb-8">
-                {me?.student
-                    ? `${me.student.first_name} ${me.student.last_name}`
-                    : me?.email}
-            </p>
+                    <h1 className="mt-3 text-4xl font-bold">Bienvenido</h1>
 
-            <div className="border rounded-xl p-6 mb-8">
-                <h2 className="font-semibold mb-2">
-                    Estado de la cuenta
-                </h2>
+                    <p className="mt-2 text-slate-400">{displayName}</p>
+                </header>
 
-                <p>{me?.account?.status}</p>
-            </div>
+                <section className="mb-8 rounded-2xl border border-slate-800 bg-slate-900 p-6">
+                    <h2 className="text-lg font-semibold">Estado de la cuenta</h2>
 
-            <div>
-                <h2 className="text-2xl font-bold mb-4">
-                    Mis cursos
-                </h2>
+                    <p className="mt-2 text-slate-300">
+                        {me.account?.status ?? "Sin estado"}
+                    </p>
+                </section>
 
-                {me?.enrollments.length === 0 ? (
-                    <div className="border rounded-xl p-6">
-                        Todavía no tienes cursos activos.
-                    </div>
-                ) : (
-                    <div className="grid md:grid-cols-3 gap-6">
-                        {me.enrollments.map((enrollment) => (
-                            <div
-                                key={enrollment.id}
-                                className="border rounded-xl p-6"
-                            >
-                                <h3 className="font-semibold">
-                                    {enrollment.course_id.title}
-                                </h3>
+                <section>
+                    <h2 className="mb-4 text-2xl font-bold">Mis cursos</h2>
 
-                                <p className="text-sm text-slate-500 mt-2">
-                                    Estado: {enrollment.status}
-                                </p>
+                    {enrollments.length === 0 ? (
+                        <div className="rounded-2xl border border-slate-800 bg-slate-900 p-6">
+                            <p className="text-slate-300">
+                                Todavía no tienes cursos activos.
+                            </p>
+                        </div>
+                    ) : (
+                        <div className="grid gap-6 md:grid-cols-3">
+                            {enrollments.map((enrollment) => (
+                                <article
+                                    key={enrollment.id}
+                                    className="rounded-2xl border border-slate-800 bg-slate-900 p-6"
+                                >
+                                    <h3 className="text-lg font-semibold">
+                                        {enrollment.course_id?.title ?? "Curso sin título"}
+                                    </h3>
 
-                                <p className="text-sm text-slate-500">
-                                    Vigencia:
-                                </p>
+                                    <p className="mt-3 text-sm text-slate-400">
+                                        Estado: {enrollment.status}
+                                    </p>
 
-                                <p className="text-sm">
-                                    {new Date(
-                                        enrollment.starts_at
-                                    ).toLocaleDateString()}
-                                </p>
+                                    <p className="mt-2 text-sm text-slate-400">Vigencia:</p>
 
-                                <p className="text-sm">
-                                    {new Date(
-                                        enrollment.ends_at
-                                    ).toLocaleDateString()}
-                                </p>
-                            </div>
-                        ))}
-                    </div>
-                )}
-            </div>
+                                    <p className="text-sm text-slate-300">
+                                        {enrollment.starts_at
+                                            ? new Date(enrollment.starts_at).toLocaleDateString(
+                                                "es-MX"
+                                            )
+                                            : "Sin fecha de inicio"}
+                                    </p>
+
+                                    <p className="text-sm text-slate-300">
+                                        {enrollment.ends_at
+                                            ? new Date(enrollment.ends_at).toLocaleDateString("es-MX")
+                                            : "Sin fecha de fin"}
+                                    </p>
+                                </article>
+                            ))}
+                        </div>
+                    )}
+                </section>
+            </section>
         </main>
     );
 }
