@@ -43,7 +43,7 @@ export default async function CourseContentPage({
             fields: [
                 "id",
                 "title",
-                "module_id",
+                "module_id.id",
                 "status",
             ],
         })
@@ -101,9 +101,14 @@ export default async function CourseContentPage({
                     )}
 
                     {modules.map((module) => {
+                        const getRelationId = (value: any) =>
+                            typeof value === "object" && value !== null
+                                ? value.id
+                                : value;
+
                         const moduleLessons = lessons.filter(
-                            (lesson) =>
-                                lesson.module_id === module.id
+                            (lesson: any) =>
+                                getRelationId(lesson.module_id) === module.id
                         );
 
                         return (
