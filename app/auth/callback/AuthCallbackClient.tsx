@@ -36,7 +36,7 @@ export default function AuthCallbackClient() {
                     throw new Error("Error al validar sesión");
                 }
 
-                router.push("/dashboard");
+                router.push("/auth/redirect");
             } catch {
                 setError("No se pudo completar el inicio de sesión.");
             }
