@@ -35,7 +35,7 @@ export default async function CourseContentPage({
     const lessons = await directus.request(
         readItems("course_lessons", {
             filter: {
-                course_id: {
+                course_id_: {
                     _eq: id,
                 },
             },

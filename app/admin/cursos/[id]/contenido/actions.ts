@@ -39,7 +39,7 @@ export async function createLesson(
     await directus.request(
         createItem("course_lessons", {
             title,
-            course_id: courseId,
+            course_id_: courseId,
             module_id: moduleId,
             status: "draft",
             video_status: "pending",
