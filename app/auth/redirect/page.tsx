@@ -1,42 +1,49 @@
-// app/auth/redirect/page.tsx
-
-import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
 
 export default async function AuthRedirectPage() {
-    const accessToken = (await cookies()).get("access_token")?.value;
+    const cookieStore = await cookies();
 
-    if (!accessToken) {
+    const idToken = cookieStore.get("id_token")?.value;
+    const accessToken = cookieStore.get("access_token")?.value;
+
+    if (!idToken) {
         redirect("/");
     }
 
-    const response = await fetch(
-        `${process.env.NEXT_PUBLIC_APP_URL}/api/me`,
-        {
-            headers: {
-                Cookie: `access_token=${accessToken}`,
-            },
-            cache: "no-store",
-        }
-    );
+    const baseUrl =
+        process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+
+    const response = await fetch(`${baseUrl}/api/me`, {
+        headers: {
+            Cookie: [
+                `id_token=${idToken}`,
+                accessToken ? `access_token=${accessToken}` : "",
+            ]
+                .filter(Boolean)
+                .join("; "),
+        },
+        cache: "no-store",
+    });
 
     if (!response.ok) {
-        redirect("/");
+        redirect("/dashboard");
     }
 
     const me = await response.json();
+    const role = me.account?.role ?? "student";
 
-    switch (me.account?.role) {
-        case "admin":
-            redirect("/admin");
-
-        case "instructor":
-            redirect("/instructor");
-
-        case "support":
-            redirect("/support");
-
-        default:
-            redirect("/dashboard");
+    if (role === "admin") {
+        redirect("/admin");
     }
+
+    if (role === "instructor") {
+        redirect("/instructor");
+    }
+
+    if (role === "support") {
+        redirect("/support");
+    }
+
+    redirect("/dashboard");
 }
