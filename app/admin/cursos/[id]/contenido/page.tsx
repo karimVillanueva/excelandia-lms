@@ -23,7 +23,7 @@ export default async function CourseContentPage({
     const modules = await directus.request(
         readItems("course_modules", {
             filter: {
-                course_id: {
+                course_id_: {
                     _eq: id,
                 },
             },
