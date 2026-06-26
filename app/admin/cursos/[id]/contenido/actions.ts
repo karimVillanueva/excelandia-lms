@@ -1,26 +1,21 @@
 "use server";
 
 import { directus } from "@/lib/directus";
-import { createItem } from "@directus/sdk";
+import { createItem, deleteItem } from "@directus/sdk";
 import { revalidatePath } from "next/cache";
-import { deleteItem } from "@directus/sdk";
 
-export async function createModule(
-    courseId: string,
-    formData: FormData
-) {
+export async function createModule(courseId: string, formData: FormData) {
     const title = String(formData.get("title") || "").trim();
 
     if (!title) {
-        return {
-            error: "El nombre del módulo es obligatorio",
-        };
+        revalidatePath(`/admin/cursos/${courseId}/contenido`);
+        return;
     }
 
     await directus.request(
         createItem("course_modules", {
             title,
-            course_id: courseId,
+            course_id_: courseId,
             status: "published",
         })
     );
@@ -36,7 +31,8 @@ export async function createLesson(
     const title = String(formData.get("title") || "").trim();
 
     if (!title) {
-        throw new Error("La lección necesita un título");
+        revalidatePath(`/admin/cursos/${courseId}/contenido`);
+        return;
     }
 
     await directus.request(
@@ -53,24 +49,14 @@ export async function createLesson(
     revalidatePath(`/admin/cursos/${courseId}/contenido`);
 }
 
-export async function deleteModule(
-    courseId: string,
-    moduleId: string
-) {
-    await directus.request(
-        deleteItem("course_modules", moduleId)
-    );
+export async function deleteModule(courseId: string, moduleId: string) {
+    await directus.request(deleteItem("course_modules", moduleId));
 
     revalidatePath(`/admin/cursos/${courseId}/contenido`);
 }
 
-export async function deleteLesson(
-    courseId: string,
-    lessonId: string
-) {
-    await directus.request(
-        deleteItem("course_lessons", lessonId)
-    );
+export async function deleteLesson(courseId: string, lessonId: string) {
+    await directus.request(deleteItem("course_lessons", lessonId));
 
     revalidatePath(`/admin/cursos/${courseId}/contenido`);
 }
