@@ -3,6 +3,7 @@
 import { directus } from "@/lib/directus";
 import { createItem } from "@directus/sdk";
 import { revalidatePath } from "next/cache";
+import { deleteItem } from "@directus/sdk";
 
 export async function createModule(
     courseId: string,
@@ -45,6 +46,28 @@ export async function createLesson(
             video_status: "pending",
             is_preview: false,
         })
+    );
+
+    revalidatePath(`/admin/cursos/${courseId}/contenido`);
+}
+
+export async function deleteModule(
+    courseId: string,
+    moduleId: string
+) {
+    await directus.request(
+        deleteItem("course_modules", moduleId)
+    );
+
+    revalidatePath(`/admin/cursos/${courseId}/contenido`);
+}
+
+export async function deleteLesson(
+    courseId: string,
+    lessonId: string
+) {
+    await directus.request(
+        deleteItem("course_lessons", lessonId)
     );
 
     revalidatePath(`/admin/cursos/${courseId}/contenido`);
