@@ -96,8 +96,9 @@ export default async function CourseContentPage({
                     >
                         <input
                             name="title"
+                            required
                             placeholder="Ej. Introducción"
-                            className="flex-1 rounded-2xl border border-slate-700 bg-[#02070F] px-4 py-3 outline-none focus:border-emerald-400"
+                            className="..."
                         />
 
                         <button
@@ -222,8 +223,9 @@ export default async function CourseContentPage({
                                 >
                                     <input
                                         name="title"
+                                        required
                                         placeholder="Nueva lección"
-                                        className="flex-1 rounded-2xl border border-slate-700 bg-[#02070F] px-4 py-3 outline-none focus:border-emerald-400"
+                                        className="..."
                                     />
 
                                     <button

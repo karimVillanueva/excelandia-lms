@@ -12,7 +12,9 @@ export async function createModule(
     const title = String(formData.get("title") || "").trim();
 
     if (!title) {
-        throw new Error("El módulo necesita un título");
+        return {
+            error: "El nombre del módulo es obligatorio",
+        };
     }
 
     await directus.request(
