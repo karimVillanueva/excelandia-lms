@@ -25,7 +25,7 @@ export default async function LessonPage({ params }: Props) {
                 "status",
                 "is_preview",
                 "video_status",
-                "video_hls_url",
+                "video_hls_path",
                 "course_id",
             ],
         })
@@ -140,7 +140,7 @@ export default async function LessonPage({ params }: Props) {
                             </span>
                         </p>
 
-                        {!lesson.video_hls_url ? (
+                        {!lesson.video_hls_path ? (
                             <p className="mt-4 text-slate-500">
                                 No se ha cargado ningún video.
                             </p>
