@@ -73,12 +73,6 @@ export async function deleteLessonMaterial(
     revalidatePath(`/admin/lecciones/${lessonId}`);
 }
 
-export async function uploadVideo(
-    lessonId: string,
-    courseId: string,
-    formData: FormData
-)
-
 export async function uploadLessonVideo(
     lessonId: string,
     courseId: string,
