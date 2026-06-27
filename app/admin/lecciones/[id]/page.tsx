@@ -5,7 +5,9 @@ import {
     deleteLessonMaterial,
     updateLesson,
     uploadLessonMaterial,
+    uploadLessonVideo,
 } from "./actions";
+
 
 interface Props {
     params: Promise<{
@@ -27,6 +29,8 @@ export default async function LessonPage({ params }: Props) {
                 "video_status",
                 "video_hls_path",
                 "course_id",
+                "video_original_path",
+                "video_size_mb",
             ],
         })
     );
@@ -52,6 +56,19 @@ export default async function LessonPage({ params }: Props) {
             ],
         })
     );
+
+    <form action={uploadVideo.bind(null, lesson.id, courseId)}>
+        <input
+            type="file"
+            name="video"
+            accept="video/mp4"
+            required
+        />
+
+        <button type="submit">
+            Subir video
+        </button>
+    </form>
 
     return (
         <main className="min-h-screen bg-[#02070F] text-white">
@@ -148,6 +165,42 @@ export default async function LessonPage({ params }: Props) {
                             <p className="mt-4 text-emerald-400">Video disponible.</p>
                         )}
                     </div>
+
+                    <form
+                        action={uploadLessonVideo.bind(null, id, lesson.course_id)}
+                        className="mt-6 grid gap-4"
+                    >
+                        <input
+                            type="file"
+                            name="video"
+                            accept="video/mp4"
+                            required
+                            className="rounded-2xl border border-slate-700 bg-[#02070F] px-4 py-3 text-slate-300"
+                        />
+
+                        <button
+                            type="submit"
+                            className="rounded-2xl bg-emerald-400 px-6 py-3 font-bold text-slate-950 transition hover:-translate-y-1 hover:bg-emerald-300"
+                        >
+                            Subir video MP4
+                        </button>
+                    </form>
+
+                    {lesson.video_original_path && (
+                        <div className="mt-6 rounded-2xl border border-slate-800 bg-[#02070F] p-4 text-sm text-slate-400">
+                            <p>
+                                Video original:{" "}
+                                <span className="text-slate-200">{lesson.video_original_path}</span>
+                            </p>
+
+                            {lesson.video_size_mb && (
+                                <p className="mt-2">
+                                    Tamaño:{" "}
+                                    <span className="text-slate-200">{lesson.video_size_mb} MB</span>
+                                </p>
+                            )}
+                        </div>
+                    )}
 
                     <button
                         type="submit"
