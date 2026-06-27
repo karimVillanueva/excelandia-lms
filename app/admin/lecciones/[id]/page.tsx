@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { directus } from "@/lib/directus";
 import { readItem, readItems } from "@directus/sdk";
+import VideoUpload from "./VideoUpload";
 import {
     deleteLessonMaterial,
     updateLesson,
@@ -158,7 +159,10 @@ export default async function LessonPage({ params }: Props) {
                         <p className="mt-4 text-emerald-400">Video disponible.</p>
                     )}
 
-
+                    <VideoUpload
+                        lessonId={id}
+                        courseId={lesson.course_id}
+                    />
                     {lesson.video_original_path && (
                         <div className="mt-6 rounded-2xl border border-slate-800 bg-[#02070F] p-4 text-sm text-slate-400">
                             <p>
