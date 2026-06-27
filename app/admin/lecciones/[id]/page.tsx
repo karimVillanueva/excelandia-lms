@@ -34,7 +34,7 @@ export default async function LessonPage({ params }: Props) {
     const materials = await directus.request(
         readItems("lesson_materials", {
             filter: {
-                lesson_id: {
+                lesson_id_: {
                     _eq: id,
                 },
             },

@@ -48,7 +48,7 @@ export async function uploadLessonMaterial(
 
     await directus.request(
         createItem("lesson_materials", {
-            lesson_id: lessonId,
+            lesson_id_: lessonId,
             course_id: courseId,
             title: title || file.name,
             description: description || null,
