@@ -49,9 +49,19 @@ export default function VideoUpload({
                     }
                 );
 
-            const {
-                uploadUrl,
-            } = await response.json();
+            if (!response.ok) {
+                const text = await response.text();
+                console.error("Upload URL error:", text);
+                alert("No se pudo generar la URL de subida.");
+                return;
+            }
+
+            const { uploadUrl } = await response.json();
+
+            if (!uploadUrl) {
+                alert("La API no devolvió uploadUrl.");
+                return;
+            }
 
             await fetch(uploadUrl, {
                 method: "PUT",

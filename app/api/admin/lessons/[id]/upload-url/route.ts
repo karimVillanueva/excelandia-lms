@@ -48,9 +48,7 @@ export async function POST(
             updateItem("course_lessons", id, {
                 video_original_path: key,
                 video_status: "uploading",
-                video_size_mb: Number(
-                    (fileSize / 1024 / 1024).toFixed(2)
-                ),
+                video_size_mb: Math.round(fileSize / 1024 / 1024),
             })
         );
 
