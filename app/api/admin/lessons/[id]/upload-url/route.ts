@@ -61,6 +61,7 @@ export async function POST(
     } catch (error) {
         console.error(error);
 
+
         return NextResponse.json(
             {
                 error: "No se pudo generar la URL.",
