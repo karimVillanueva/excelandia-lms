@@ -1,142 +1,158 @@
-import { NextRequest, NextResponse } from "next/server";
-import {
-    CreateJobCommand,
-} from "@aws-sdk/client-mediaconvert";
-import { mediaConvert } from "@/lib/mediaconvert";
-import { directus } from "@/lib/directus";
-import {
-    readItem,
-    updateItem,
-} from "@directus/sdk";
+export async function POST(request: NextRequest, { params }: Props) {
+    try {
+        import { NextRequest, NextResponse } from "next/server";
+        import {
+            CreateJobCommand,
+        } from "@aws-sdk/client-mediaconvert";
+        import { mediaConvert } from "@/lib/mediaconvert";
+        import { directus } from "@/lib/directus";
+        import {
+            readItem,
+            updateItem,
+        } from "@directus/sdk";
 
-interface Props {
-    params: Promise<{
-        id: string;
-    }>;
-}
+        interface Props {
+            params: Promise<{
+                id: string;
+            }>;
+        }
 
-export async function POST(
-    request: NextRequest,
-    { params }: Props
-) {
-    const { id } = await params;
+        export async function POST(
+            request: NextRequest,
+            { params }: Props
+        ) {
+            const { id } = await params;
 
-    const lesson: any =
-        await directus.request(
-            readItem(
-                "course_lessons",
-                id,
-                {
-                    fields: [
-                        "id",
-                        "course_id",
-                        "video_original_path",
-                    ],
-                }
-            )
-        );
-
-    if (
-        !lesson.video_original_path
-    ) {
-        return NextResponse.json(
-            {
-                error:
-                    "La lección no tiene video.",
-            },
-            {
-                status: 400,
-            }
-        );
-    }
-
-    const outputPath =
-        `courses/${lesson.course_id}/lessons/${id}/`;
-
-    const command =
-        new CreateJobCommand({
-            Role:
-                process.env
-                    .MEDIACONVERT_ROLE_ARN,
-
-            Settings: {
-                Inputs: [
-                    {
-                        FileInput:
-                            `s3://${process.env.S3_ORIGINAL_BUCKET}/${lesson.video_original_path}`,
-                    },
-                ],
-
-                OutputGroups: [
-                    {
-                        Name:
-                            "Apple HLS",
-
-                        OutputGroupSettings:
+            const lesson: any =
+                await directus.request(
+                    readItem(
+                        "course_lessons",
+                        id,
                         {
-                            Type:
-                                "HLS_GROUP_SETTINGS",
+                            fields: [
+                                "id",
+                                "course_id",
+                                "video_original_path",
+                            ],
+                        }
+                    )
+                );
 
-                            HlsGroupSettings:
+            if (
+                !lesson.video_original_path
+            ) {
+                return NextResponse.json(
+                    {
+                        error:
+                            "La lección no tiene video.",
+                    },
+                    {
+                        status: 400,
+                    }
+                );
+            }
+
+            const outputPath =
+                `courses/${lesson.course_id}/lessons/${id}/`;
+
+            const command =
+                new CreateJobCommand({
+                    Role:
+                        process.env
+                            .MEDIACONVERT_ROLE_ARN,
+
+                    Settings: {
+                        Inputs: [
                             {
-                                Destination:
-                                    `s3://${process.env.S3_STREAMING_BUCKET}/${outputPath}`,
+                                FileInput:
+                                    `s3://${process.env.S3_ORIGINAL_BUCKET}/${lesson.video_original_path}`,
                             },
-                        },
+                        ],
 
-                        Outputs: [
+                        OutputGroups: [
                             {
-                                ContainerSettings:
-                                {
-                                    Container:
-                                        "M3U8",
-                                },
+                                Name:
+                                    "Apple HLS",
 
-                                VideoDescription:
+                                OutputGroupSettings:
                                 {
-                                    Width: 1280,
-                                    Height: 720,
-                                    CodecSettings:
+                                    Type:
+                                        "HLS_GROUP_SETTINGS",
+
+                                    HlsGroupSettings:
                                     {
-                                        Codec:
-                                            "H_264",
-                                        H264Settings:
-                                        {
-                                            Bitrate:
-                                                3500000,
-                                        },
+                                        Destination:
+                                            `s3://${process.env.S3_STREAMING_BUCKET}/${outputPath}`,
                                     },
                                 },
 
-                                NameModifier:
-                                    "_720p",
+                                Outputs: [
+                                    {
+                                        ContainerSettings:
+                                        {
+                                            Container:
+                                                "M3U8",
+                                        },
+
+                                        VideoDescription:
+                                        {
+                                            Width: 1280,
+                                            Height: 720,
+                                            CodecSettings:
+                                            {
+                                                Codec:
+                                                    "H_264",
+                                                H264Settings:
+                                                {
+                                                    Bitrate:
+                                                        3500000,
+                                                },
+                                            },
+                                        },
+
+                                        NameModifier:
+                                            "_720p",
+                                    },
+                                ],
                             },
                         ],
                     },
-                ],
-            },
-        });
+                });
 
-    const result =
-        await mediaConvert.send(
-            command
-        );
+            const result =
+                await mediaConvert.send(
+                    command
+                );
 
-    await directus.request(
-        updateItem(
-            "course_lessons",
-            id,
-            {
-                video_status:
-                    "processing",
-                video_job_id:
+            await directus.request(
+                updateItem(
+                    "course_lessons",
+                    id,
+                    {
+                        video_status:
+                            "processing",
+                        video_job_id:
+                            result.Job?.Id,
+                    }
+                )
+            );
+
+            return NextResponse.json({
+                jobId:
                     result.Job?.Id,
-            }
-        )
-    );
+            });
+        }
 
-    return NextResponse.json({
-        jobId:
-            result.Job?.Id,
-    });
+    } catch (error: any) {
+        console.error("MediaConvert error:", error);
+
+        return NextResponse.json(
+            {
+                error: error?.message ?? "Error desconocido",
+                name: error?.name,
+                metadata: error?.$metadata,
+            },
+            { status: 500 }
+        );
+    }
 }
