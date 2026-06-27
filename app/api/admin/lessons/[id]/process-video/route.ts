@@ -79,10 +79,10 @@ export async function POST(request: NextRequest, { params }: Props) {
                                     Type:
                                         "HLS_GROUP_SETTINGS",
 
-                                    HlsGroupSettings:
-                                    {
-                                        Destination:
-                                            `s3://${process.env.S3_STREAMING_BUCKET}/${outputPath}`,
+                                    HlsGroupSettings: {
+                                        Destination: `s3://${process.env.S3_STREAMING_BUCKET}/${outputPath}`,
+                                        SegmentLength: 6,
+                                        MinSegmentLength: 0,
                                     },
                                 },
 
