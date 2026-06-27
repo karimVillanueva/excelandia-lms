@@ -7,24 +7,16 @@ interface Props {
     courseId: string;
 }
 
-export default function VideoUpload({
-    lessonId,
-    courseId,
-}: Props) {
+export default function VideoUpload({ lessonId, courseId }: Props) {
     const [uploading, setUploading] = useState(false);
     const [progressText, setProgressText] = useState("");
 
-    async function handleUpload(
-        event: React.FormEvent<HTMLFormElement>
-    ) {
+    async function handleUpload(event: React.FormEvent<HTMLFormElement>) {
         event.preventDefault();
 
         const form = event.currentTarget;
-
-        const file =
-            (form.elements.namedItem(
-                "video"
-            ) as HTMLInputElement)?.files?.[0];
+        const file = (form.elements.namedItem("video") as HTMLInputElement)
+            ?.files?.[0];
 
         if (!file) {
             alert("Selecciona un video.");
@@ -37,10 +29,9 @@ export default function VideoUpload({
         }
 
         setUploading(true);
+        setProgressText("Generando URL de subida...");
 
         try {
-            setProgressText("Generando URL de subida...");
-
             const response = await fetch(
                 `/api/admin/lessons/${lessonId}/upload-url`,
                 {
@@ -59,19 +50,8 @@ export default function VideoUpload({
 
             if (!response.ok) {
                 const text = await response.text();
-
-                console.error(
-                    "Error generando URL:",
-                    text
-                );
-
-                alert(
-                    "No se pudo generar la URL de subida."
-                );
-
-                setUploading(false);
-                setProgressText("");
-
+                console.error("Error generando URL:", text);
+                alert("No se pudo generar la URL de subida.");
                 return;
             }
 
@@ -79,75 +59,57 @@ export default function VideoUpload({
 
             if (!data.uploadUrl) {
                 console.error(data);
-
-                alert(
-                    "La API no devolvió una URL válida."
-                );
-
-                setUploading(false);
-                setProgressText("");
-
+                alert("La API no devolvió una URL válida.");
                 return;
             }
 
             setProgressText("Subiendo video a S3...");
 
-            const uploadResponse = await fetch(
-                data.uploadUrl,
-                {
-                    method: "PUT",
-                    body: file,
-                    headers: {
-                        "Content-Type": file.type,
-                    },
-                }
-            );
+            const uploadResponse = await fetch(data.uploadUrl, {
+                method: "PUT",
+                body: file,
+                headers: {
+                    "Content-Type": file.type,
+                },
+            });
 
             if (!uploadResponse.ok) {
-                const text =
-                    await uploadResponse.text();
-
-                console.error(
-                    "Error al subir a S3:",
-                    text
-                );
-
-                alert(
-                    `No se pudo subir el video a S3.\n\nEstado: ${uploadResponse.status}`
-                );
-
-                setUploading(false);
-                setProgressText("");
-
+                const text = await uploadResponse.text();
+                console.error("Error al subir a S3:", text);
+                alert(`No se pudo subir el video a S3.\n\nEstado: ${uploadResponse.status}`);
                 return;
             }
 
-            setProgressText(
-                "Video cargado correctamente."
+            setProgressText("Creando trabajo de procesamiento...");
+
+            const processResponse = await fetch(
+                `/api/admin/lessons/${lessonId}/process-video`,
+                {
+                    method: "POST",
+                }
             );
 
-            alert(
-                "Video cargado correctamente."
-            );
+            if (!processResponse.ok) {
+                const text = await processResponse.text();
+                console.error("Error creando job MediaConvert:", text);
+                alert("El video se subió a S3, pero no se pudo iniciar el procesamiento.");
+                return;
+            }
 
+            setProgressText("Video cargado y enviado a procesamiento.");
+            alert("Video cargado y enviado a procesamiento.");
             location.reload();
         } catch (error) {
             console.error(error);
-
-            alert(
-                "Ocurrió un error durante la subida."
-            );
+            alert("Ocurrió un error durante la subida.");
+        } finally {
+            setUploading(false);
+            setProgressText("");
         }
-
-        setUploading(false);
-        setProgressText("");
     }
 
     return (
-        <form
-            onSubmit={handleUpload}
-            className="mt-6 grid gap-4"
-        >
+        <form onSubmit={handleUpload} className="mt-6 grid gap-4">
             <input
                 type="file"
                 name="video"
@@ -162,16 +124,10 @@ export default function VideoUpload({
                 disabled={uploading}
                 className="rounded-2xl bg-emerald-400 px-6 py-3 font-bold text-slate-950 transition hover:bg-emerald-300 disabled:cursor-not-allowed disabled:opacity-70"
             >
-                {uploading
-                    ? "Subiendo..."
-                    : "Subir video MP4"}
+                {uploading ? "Subiendo..." : "Subir video MP4"}
             </button>
 
-            {progressText && (
-                <p className="text-sm text-slate-400">
-                    {progressText}
-                </p>
-            )}
+            {progressText && <p className="text-sm text-slate-400">{progressText}</p>}
         </form>
     );
 }

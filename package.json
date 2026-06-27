@@ -9,6 +9,7 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@aws-sdk/client-mediaconvert": "^3.1075.0",
     "@aws-sdk/client-s3": "^3.1075.0",
     "@aws-sdk/s3-request-presigner": "^3.1075.0",
     "@directus/sdk": "^22.0.0",
