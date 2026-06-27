@@ -4,8 +4,7 @@ import { readItem, readItems } from "@directus/sdk";
 import {
     deleteLessonMaterial,
     updateLesson,
-    uploadLessonMaterial,
-    uploadLessonVideo,
+    uploadLessonMaterial
 } from "./actions";
 
 interface Props {
@@ -159,25 +158,6 @@ export default async function LessonPage({ params }: Props) {
                         <p className="mt-4 text-emerald-400">Video disponible.</p>
                     )}
 
-                    <form
-                        action={uploadLessonVideo.bind(null, id, lesson.course_id)}
-                        className="mt-6 grid gap-4"
-                    >
-                        <input
-                            type="file"
-                            name="video"
-                            accept="video/mp4"
-                            required
-                            className="rounded-2xl border border-slate-700 bg-[#02070F] px-4 py-3 text-slate-300"
-                        />
-
-                        <button
-                            type="submit"
-                            className="rounded-2xl bg-emerald-400 px-6 py-3 font-bold text-slate-950 transition hover:-translate-y-1 hover:bg-emerald-300"
-                        >
-                            Subir video MP4
-                        </button>
-                    </form>
 
                     {lesson.video_original_path && (
                         <div className="mt-6 rounded-2xl border border-slate-800 bg-[#02070F] p-4 text-sm text-slate-400">
