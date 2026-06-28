@@ -7,6 +7,7 @@ import {
     updateLesson,
     uploadLessonMaterial
 } from "./actions";
+import AdminHeader from "@/app/components/admin/AdminHeader";
 
 interface Props {
     params: Promise<{
@@ -58,6 +59,11 @@ export default async function LessonPage({ params }: Props) {
 
     return (
         <main className="min-h-screen bg-[#02070F] text-white">
+            <AdminHeader
+                title={lesson.title}
+                backHref={`/admin/cursos/${lesson.course_id}/contenido`}
+                backLabel="Contenido del curso"
+            />
             <section className="mx-auto max-w-5xl px-6 py-10">
                 <Link
                     href="/admin/cursos"

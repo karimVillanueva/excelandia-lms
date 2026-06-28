@@ -7,6 +7,7 @@ import {
     deleteLesson,
     deleteModule,
 } from "./actions";
+import AdminHeader from "@/app/components/admin/AdminHeader";
 
 interface Props {
     params: Promise<{
@@ -61,6 +62,11 @@ export default async function CourseContentPage({
 
     return (
         <main className="min-h-screen bg-[#02070F] text-white">
+            <AdminHeader
+                title="Contenido del curso"
+                backHref={`/admin/cursos/${course.id}`}
+                backLabel="Editar curso"
+            />
             <section className="mx-auto max-w-6xl px-6 py-10">
                 <Link
                     href={`/admin/cursos/${id}`}
