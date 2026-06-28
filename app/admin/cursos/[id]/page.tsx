@@ -32,12 +32,6 @@ export default async function EditCoursePage({ params }: Props) {
     return (
         <main className="relative min-h-screen overflow-hidden bg-[#02070F] text-white">
             <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,#0f766e33,transparent_35%),radial-gradient(circle_at_bottom_right,#22c55e22,transparent_35%)]" />
-            <AdminHeader
-                title="Editar curso"
-                description="Actualiza la información general y configuración del curso."
-                backHref="/admin"
-                backLabel="Panel administrativo"
-            />
 
             <section className="relative z-10 mx-auto max-w-5xl px-6 py-10">
                 <div className="flex items-center justify-between gap-4">
