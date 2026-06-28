@@ -61,8 +61,9 @@ export default async function LessonPage({ params }: Props) {
         <main className="min-h-screen bg-[#02070F] text-white">
             <AdminHeader
                 title={lesson.title}
+                description="Administra el video y los materiales descargables."
                 backHref={`/admin/cursos/${lesson.course_id}/contenido`}
-                backLabel="Contenido del curso"
+                backLabel="Volver al contenido"
             />
             <section className="mx-auto max-w-5xl px-6 py-10">
                 <Link
