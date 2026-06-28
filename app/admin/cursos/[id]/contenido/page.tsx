@@ -64,6 +64,7 @@ export default async function CourseContentPage({
         <main className="min-h-screen bg-[#02070F] text-white">
             <AdminHeader
                 title="Contenido del curso"
+                description={`Administra módulos y lecciones de ${course.title}`}
                 backHref={`/admin/cursos/${course.id}`}
                 backLabel="Editar curso"
             />
