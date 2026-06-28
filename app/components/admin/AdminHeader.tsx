@@ -1,6 +1,9 @@
+// app/components/admin/AdminHeader.tsx
+
 import Link from "next/link";
 
 interface Props {
+    eyebrow?: string;
     title: string;
     description?: string;
     backHref?: string;
@@ -9,6 +12,7 @@ interface Props {
 }
 
 export default function AdminHeader({
+    eyebrow = "Academia Excelandia",
     title,
     description,
     backHref,
@@ -16,23 +20,27 @@ export default function AdminHeader({
     actions,
 }: Props) {
     return (
-        <header className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+        <header className="mb-10 flex flex-col gap-6 md:flex-row md:items-start md:justify-between">
             <div>
                 {backHref && (
                     <Link
                         href={backHref}
-                        className="mb-3 inline-flex text-sm text-slate-400 hover:text-white"
+                        className="mb-4 inline-flex text-sm text-slate-400 transition hover:text-white"
                     >
                         ← {backLabel}
                     </Link>
                 )}
 
-                <h1 className="text-3xl font-bold text-white">
+                <p className="text-sm font-bold uppercase tracking-[0.35em] text-emerald-400">
+                    {eyebrow}
+                </p>
+
+                <h1 className="mt-4 text-4xl font-black text-white md:text-5xl">
                     {title}
                 </h1>
 
                 {description && (
-                    <p className="mt-2 text-slate-400">
+                    <p className="mt-2 max-w-2xl text-slate-400">
                         {description}
                     </p>
                 )}
@@ -43,7 +51,7 @@ export default function AdminHeader({
 
                 <a
                     href="/api/logout"
-                    className="rounded-2xl border border-red-500/40 px-5 py-3 text-sm font-bold text-red-300 transition hover:bg-red-500/10"
+                    className="rounded-2xl border border-red-500/40 bg-red-500/5 px-5 py-3 font-bold text-red-300 transition hover:bg-red-500/10"
                 >
                     Cerrar sesión
                 </a>

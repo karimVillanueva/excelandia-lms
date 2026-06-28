@@ -17,14 +17,13 @@ export default async function AdminPage() {
             <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,#0f766e33,transparent_35%),radial-gradient(circle_at_bottom_right,#22c55e22,transparent_35%)]" />
 
             <section className="relative z-10 mx-auto max-w-7xl px-6 py-8">
-
                 <AdminHeader
-                    title="Panel de administración"
-                    description="Gestiona cursos, lecciones y estudiantes."
+                    title="Panel administrativo"
+                    description="Gestiona cursos, contenido, instructores y alumnos."
                     actions={
                         <Link
                             href="/admin/cursos/nuevo"
-                            className="rounded-2xl bg-emerald-400 px-5 py-3 font-bold text-slate-950 transition hover:bg-emerald-300"
+                            className="rounded-2xl bg-emerald-400 px-5 py-3 font-bold text-slate-950 transition hover:-translate-y-1 hover:bg-emerald-300"
                         >
                             Crear curso
                         </Link>
