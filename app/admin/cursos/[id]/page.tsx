@@ -34,21 +34,6 @@ export default async function EditCoursePage({ params }: Props) {
             <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,#0f766e33,transparent_35%),radial-gradient(circle_at_bottom_right,#22c55e22,transparent_35%)]" />
 
             <section className="relative z-10 mx-auto max-w-5xl px-6 py-10">
-                <div className="flex items-center justify-between gap-4">
-                    <Link
-                        href="/admin/cursos"
-                        className="text-sm font-semibold text-slate-400 transition hover:text-emerald-300"
-                    >
-                        ← Volver a cursos
-                    </Link>
-
-                    <Link
-                        href={`/admin/cursos/${id}/contenido`}
-                        className="rounded-2xl border border-slate-700 bg-slate-900/70 px-5 py-3 text-sm font-bold text-slate-200 transition hover:-translate-y-0.5 hover:border-emerald-400 hover:text-white"
-                    >
-                        Ir a contenido →
-                    </Link>
-                </div>
 
                 <AdminHeader
                     eyebrow="Editar curso"
