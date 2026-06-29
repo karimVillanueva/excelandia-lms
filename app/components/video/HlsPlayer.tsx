@@ -76,17 +76,18 @@ export default function HlsPlayer({ lessonId, courseId, src }: Props) {
     }, [src, initialPosition]);
 
     // 3. Guardar progreso
+    // 3. Guardar progreso
     useEffect(() => {
-        const video = videoRef.current;
+        const currentVideo = videoRef.current;
 
-        if (!video) return;
+        if (!currentVideo) return;
 
         let lastSave = 0;
         let completed = false;
 
         async function saveProgress() {
-            const current = Math.floor(video.currentTime);
-            const duration = Math.floor(video.duration || 0);
+            const current = Math.floor(currentVideo.currentTime);
+            const duration = Math.floor(currentVideo.duration || 0);
 
             if (!duration || Number.isNaN(duration)) return;
 
@@ -117,7 +118,7 @@ export default function HlsPlayer({ lessonId, courseId, src }: Props) {
         }
 
         async function handleTimeUpdate() {
-            const current = Math.floor(video.currentTime);
+            const current = Math.floor(currentVideo.currentTime);
 
             if (completed) return;
             if (current - lastSave < 10) return;
@@ -134,13 +135,13 @@ export default function HlsPlayer({ lessonId, courseId, src }: Props) {
             saveProgress();
         }
 
-        video.addEventListener("timeupdate", handleTimeUpdate);
-        video.addEventListener("ended", handleEnded);
+        currentVideo.addEventListener("timeupdate", handleTimeUpdate);
+        currentVideo.addEventListener("ended", handleEnded);
         window.addEventListener("beforeunload", handlePageLeave);
 
         return () => {
-            video.removeEventListener("timeupdate", handleTimeUpdate);
-            video.removeEventListener("ended", handleEnded);
+            currentVideo.removeEventListener("timeupdate", handleTimeUpdate);
+            currentVideo.removeEventListener("ended", handleEnded);
             window.removeEventListener("beforeunload", handlePageLeave);
         };
     }, [lessonId, courseId]);
