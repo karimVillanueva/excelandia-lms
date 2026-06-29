@@ -180,11 +180,39 @@ export async function GET(request: NextRequest) {
             };
         });
 
+        const certificates =
+            student
+                ? await directus.request(
+                    readItems("course_certificates", {
+                        filter: {
+                            student_id: {
+                                _eq: student.id,
+                            },
+                            status: {
+                                _eq: "issued",
+                            },
+                        },
+                        fields: [
+                            "id",
+                            "certificate_number",
+                            "verification_code",
+                            "completed_at",
+                            "course_id.id",
+                            "course_id.title",
+                            "pdf_file.id",
+                            "pdf_file.filename_download",
+                        ],
+                        limit: -1,
+                    })
+                )
+                : [];
+
         return NextResponse.json({
             authenticated: true,
             account,
             student,
             courses: dashboardCourses,
+            certificates,
         });
     } catch (error) {
         console.error("GET /api/dashboard error:", error);

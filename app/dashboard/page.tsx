@@ -222,6 +222,71 @@ export default function DashboardPage() {
                         </div>
                     )}
                 </section>
+                <section className="mt-12">
+                    <div className="mb-5 flex items-center justify-between">
+                        <h2 className="text-3xl font-black">Mis certificados</h2>
+                    </div>
+
+                    {dashboard.certificates?.length === 0 ? (
+                        <div className="rounded-3xl border border-dashed border-slate-700 bg-slate-900/40 p-8 text-center text-slate-400">
+                            Todavía no tienes certificados emitidos.
+                        </div>
+                    ) : (
+                        <div className="grid gap-6 md:grid-cols-2">
+                            {dashboard.certificates.map((certificate: any) => (
+                                <article
+                                    key={certificate.id}
+                                    className="rounded-3xl border border-emerald-400/20 bg-slate-900/70 p-6 backdrop-blur"
+                                >
+                                    <p className="text-sm font-bold uppercase tracking-[0.25em] text-emerald-400">
+                                        Certificado
+                                    </p>
+
+                                    <h3 className="mt-3 text-2xl font-black">
+                                        {certificate.course_id?.title ?? "Curso"}
+                                    </h3>
+
+                                    <p className="mt-3 text-sm text-slate-400">
+                                        Folio:{" "}
+                                        <span className="text-slate-200">
+                                            {certificate.certificate_number}
+                                        </span>
+                                    </p>
+
+                                    <p className="mt-1 text-sm text-slate-400">
+                                        Emitido:{" "}
+                                        <span className="text-slate-200">
+                                            {certificate.completed_at
+                                                ? new Date(certificate.completed_at).toLocaleDateString("es-MX")
+                                                : "Sin fecha"}
+                                        </span>
+                                    </p>
+
+                                    <div className="mt-6 flex flex-col gap-3 sm:flex-row">
+                                        {certificate.pdf_file?.id && (
+                                            <a
+                                                href={`${process.env.NEXT_PUBLIC_DIRECTUS_URL}/assets/${certificate.pdf_file.id}?download`}
+                                                target="_blank"
+                                                rel="noreferrer"
+                                                className="rounded-2xl bg-emerald-400 px-5 py-3 text-center font-bold text-slate-950 transition hover:bg-emerald-300"
+                                            >
+                                                Descargar PDF
+                                            </a>
+                                        )}
+
+                                        <a
+                                            href={`/certificados/${certificate.verification_code}`}
+                                            target="_blank"
+                                            className="rounded-2xl border border-slate-700 px-5 py-3 text-center font-bold text-slate-300 transition hover:border-emerald-400 hover:text-white"
+                                        >
+                                            Verificar
+                                        </a>
+                                    </div>
+                                </article>
+                            ))}
+                        </div>
+                    )}
+                </section>
             </section>
         </main>
     );
