@@ -65,47 +65,95 @@ export default function HlsPlayer({
             return;
         }
 
-        let hls: Hls | undefined;
+        let lastSave = 0;
+        let completed = false;
 
-        if (
-            video.canPlayType(
-                "application/vnd.apple.mpegurl"
-            )
-        ) {
-            video.src = src;
-        } else if (Hls.isSupported()) {
-            hls = new Hls();
+        const saveProgress = async () => {
+            const current = Math.floor(video.currentTime);
 
-            hls.loadSource(src);
-            hls.attachMedia(video);
-        }
+            try {
+                const response = await fetch(
+                    `/api/lessons/${lessonId}/progress`,
+                    {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                        },
+                        body: JSON.stringify({
+                            course_id: courseId,
+                            last_position: current,
+                            watched_seconds: current,
+                            duration: Math.floor(video.duration),
+                        }),
+                    }
+                );
 
-        const handleLoadedMetadata =
-            () => {
-                if (
-                    initialPosition > 0 &&
-                    initialPosition <
-                    video.duration
-                ) {
-                    video.currentTime =
-                        initialPosition;
+                const data = await response.json();
+
+                if (data.completed) {
+                    completed = true;
                 }
-            };
+            } catch (error) {
+                console.error(error);
+            }
+        };
+
+        const handleTimeUpdate = async () => {
+            const current = Math.floor(video.currentTime);
+
+            if (completed) {
+                return;
+            }
+
+            if (current - lastSave < 10) {
+                return;
+            }
+
+            lastSave = current;
+
+            await saveProgress();
+        };
+
+        const handleEnded = async () => {
+            await saveProgress();
+        };
+
+        const handlePageLeave = async () => {
+            await saveProgress();
+        };
 
         video.addEventListener(
-            "loadedmetadata",
-            handleLoadedMetadata
+            "timeupdate",
+            handleTimeUpdate
+        );
+
+        video.addEventListener(
+            "ended",
+            handleEnded
+        );
+
+        window.addEventListener(
+            "beforeunload",
+            handlePageLeave
         );
 
         return () => {
             video.removeEventListener(
-                "loadedmetadata",
-                handleLoadedMetadata
+                "timeupdate",
+                handleTimeUpdate
             );
 
-            hls?.destroy();
+            video.removeEventListener(
+                "ended",
+                handleEnded
+            );
+
+            window.removeEventListener(
+                "beforeunload",
+                handlePageLeave
+            );
         };
-    }, [src, initialPosition]);
+    }, [lessonId, courseId]);
 
     //
     // Guardar progreso cada 10 segundos
