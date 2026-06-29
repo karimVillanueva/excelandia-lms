@@ -50,20 +50,21 @@ export default async function EditCoursePage({ params }: Props) {
                     </Link>
                 </div>
 
-                <header className="mt-8 mb-10">
-                    <p className="text-sm font-bold uppercase tracking-[0.35em] text-emerald-400">
-                        Editar curso
-                    </p>
-
-                    <h1 className="mt-4 text-4xl font-black md:text-5xl">
-                        {course.title}
-                    </h1>
-
-                    <p className="mt-3 text-slate-400">
-                        Modifica la información general del curso. El contenido se gestiona
-                        desde el constructor de módulos y lecciones.
-                    </p>
-                </header>
+                <AdminHeader
+                    eyebrow="Editar curso"
+                    title={course.title}
+                    description="Modifica la información general del curso. El contenido se gestiona desde el constructor de módulos y lecciones."
+                    backHref="/admin/cursos"
+                    backLabel="Volver a cursos"
+                    actions={
+                        <Link
+                            href={`/admin/cursos/${id}/contenido`}
+                            className="rounded-2xl border border-slate-700 bg-slate-900/70 px-5 py-3 text-sm font-bold text-slate-200 transition hover:-translate-y-0.5 hover:border-emerald-400 hover:text-white"
+                        >
+                            Ir a contenido →
+                        </Link>
+                    }
+                />
 
                 <form
                     action={updateCourse.bind(null, id)}
