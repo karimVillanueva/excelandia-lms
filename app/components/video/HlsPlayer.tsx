@@ -1,35 +1,180 @@
 "use client";
 
 import Hls from "hls.js";
-import { useEffect, useRef } from "react";
+import {
+    useEffect,
+    useRef,
+    useState,
+} from "react";
 
 interface Props {
+    lessonId: string;
+    courseId: string;
     src: string;
 }
 
-export default function HlsPlayer({ src }: Props) {
+export default function HlsPlayer({
+    lessonId,
+    courseId,
+    src,
+}: Props) {
     const videoRef = useRef<HTMLVideoElement>(null);
+    const [initialPosition, setInitialPosition] =
+        useState(0);
 
+    //
+    // Cargar progreso guardado
+    //
+    useEffect(() => {
+        async function loadProgress() {
+            try {
+                const response = await fetch(
+                    `/api/lessons/${lessonId}/progress`
+                );
+
+                if (!response.ok) {
+                    return;
+                }
+
+                const data = await response.json();
+
+                if (
+                    data.progress?.last_position
+                ) {
+                    setInitialPosition(
+                        Number(
+                            data.progress.last_position
+                        )
+                    );
+                }
+            } catch (error) {
+                console.error(error);
+            }
+        }
+
+        loadProgress();
+    }, [lessonId]);
+
+    //
+    // Inicializar HLS
+    //
     useEffect(() => {
         const video = videoRef.current;
 
-        if (!video) return;
-
-        if (video.canPlayType("application/vnd.apple.mpegurl")) {
-            video.src = src;
+        if (!video) {
             return;
         }
 
-        if (Hls.isSupported()) {
-            const hls = new Hls();
+        let hls: Hls | undefined;
+
+        if (
+            video.canPlayType(
+                "application/vnd.apple.mpegurl"
+            )
+        ) {
+            video.src = src;
+        } else if (Hls.isSupported()) {
+            hls = new Hls();
+
             hls.loadSource(src);
             hls.attachMedia(video);
-
-            return () => {
-                hls.destroy();
-            };
         }
-    }, [src]);
+
+        const handleLoadedMetadata =
+            () => {
+                if (
+                    initialPosition > 0 &&
+                    initialPosition <
+                    video.duration
+                ) {
+                    video.currentTime =
+                        initialPosition;
+                }
+            };
+
+        video.addEventListener(
+            "loadedmetadata",
+            handleLoadedMetadata
+        );
+
+        return () => {
+            video.removeEventListener(
+                "loadedmetadata",
+                handleLoadedMetadata
+            );
+
+            hls?.destroy();
+        };
+    }, [src, initialPosition]);
+
+    //
+    // Guardar progreso cada 10 segundos
+    //
+    useEffect(() => {
+        const video = videoRef.current;
+
+        if (!video) {
+            return;
+        }
+
+        let lastSave = 0;
+
+        const handleTimeUpdate =
+            async () => {
+                const current =
+                    Math.floor(
+                        video.currentTime
+                    );
+
+                if (
+                    current - lastSave <
+                    10
+                ) {
+                    return;
+                }
+
+                lastSave = current;
+
+                try {
+                    await fetch(
+                        `/api/lessons/${lessonId}/progress`,
+                        {
+                            method: "POST",
+                            headers: {
+                                "Content-Type":
+                                    "application/json",
+                            },
+                            body: JSON.stringify({
+                                course_id:
+                                    courseId,
+                                last_position:
+                                    current,
+                                watched_seconds:
+                                    current,
+                                duration:
+                                    Math.floor(
+                                        video.duration
+                                    ),
+                            }),
+                        }
+                    );
+                } catch (error) {
+                    console.error(error);
+                }
+            };
+
+        video.addEventListener(
+            "timeupdate",
+            handleTimeUpdate
+        );
+
+        return () => {
+            video.removeEventListener(
+                "timeupdate",
+                handleTimeUpdate
+            );
+        };
+    }, [lessonId, courseId]);
 
     return (
         <video
