@@ -13,135 +13,115 @@ export default function HlsPlayer({ lessonId, courseId, src }: Props) {
     const videoRef = useRef<HTMLVideoElement>(null);
     const [initialPosition, setInitialPosition] = useState(0);
 
-    // 1. Cargar progreso guardado
     useEffect(() => {
         async function loadProgress() {
-            try {
-                const response = await fetch(`/api/lessons/${lessonId}/progress`);
+            const response = await fetch(`/api/lessons/${lessonId}/progress`);
+            if (!response.ok) return;
 
-                if (!response.ok) return;
+            const data = await response.json();
 
-                const data = await response.json();
-
-                if (data.progress?.last_position) {
-                    setInitialPosition(Number(data.progress.last_position));
-                }
-            } catch (error) {
-                console.error(error);
+            if (data.progress?.last_position) {
+                setInitialPosition(Number(data.progress.last_position));
             }
         }
 
-        loadProgress();
+        loadProgress().catch(console.error);
     }, [lessonId]);
 
-    // 2. Inicializar HLS
     useEffect(() => {
-        const video = videoRef.current;
-
-        if (!video) return;
+        const element = videoRef.current;
+        if (!element) return;
 
         let hls: Hls | undefined;
 
-        video.src = "";
+        element.src = "";
 
-        if (video.canPlayType("application/vnd.apple.mpegurl")) {
-            video.src = src;
+        if (element.canPlayType("application/vnd.apple.mpegurl")) {
+            element.src = src;
         } else if (Hls.isSupported()) {
-            hls = new Hls({
-                enableWorker: true,
-            });
-
+            hls = new Hls({ enableWorker: true });
             hls.loadSource(src);
-            hls.attachMedia(video);
+            hls.attachMedia(element);
 
             hls.on(Hls.Events.ERROR, (_, data) => {
                 console.error("HLS error:", data);
             });
-        } else {
-            console.error("HLS no soportado en este navegador");
         }
 
-        const handleLoadedMetadata = () => {
-            if (initialPosition > 0 && initialPosition < video.duration) {
-                video.currentTime = initialPosition;
+        function handleLoadedMetadata() {
+            if (initialPosition > 0 && initialPosition < element.duration) {
+                element.currentTime = initialPosition;
             }
-        };
+        }
 
-        video.addEventListener("loadedmetadata", handleLoadedMetadata);
+        element.addEventListener("loadedmetadata", handleLoadedMetadata);
 
         return () => {
-            video.removeEventListener("loadedmetadata", handleLoadedMetadata);
+            element.removeEventListener("loadedmetadata", handleLoadedMetadata);
             hls?.destroy();
         };
     }, [src, initialPosition]);
 
-    // 3. Guardar progreso
-    // 3. Guardar progreso
     useEffect(() => {
-        const currentVideo = videoRef.current;
-
-        if (!currentVideo) return;
+        const element = videoRef.current;
+        if (!element) return;
 
         let lastSave = 0;
         let completed = false;
 
-        async function saveProgress() {
-            const current = Math.floor(currentVideo.currentTime);
-            const duration = Math.floor(currentVideo.duration || 0);
+        async function saveProgress(target: HTMLVideoElement) {
+            const current = Math.floor(target.currentTime);
+            const duration = Math.floor(target.duration || 0);
 
             if (!duration || Number.isNaN(duration)) return;
 
-            try {
-                const response = await fetch(`/api/lessons/${lessonId}/progress`, {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                    body: JSON.stringify({
-                        course_id: courseId,
-                        last_position: current,
-                        watched_seconds: current,
-                        duration,
-                    }),
-                });
+            const response = await fetch(`/api/lessons/${lessonId}/progress`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    course_id: courseId,
+                    last_position: current,
+                    watched_seconds: current,
+                    duration,
+                }),
+            });
 
-                if (!response.ok) return;
+            if (!response.ok) return;
 
-                const data = await response.json();
+            const data = await response.json();
 
-                if (data.completed) {
-                    completed = true;
-                }
-            } catch (error) {
-                console.error(error);
+            if (data.completed) {
+                completed = true;
             }
         }
 
         async function handleTimeUpdate() {
-            const current = Math.floor(currentVideo.currentTime);
+            const current = Math.floor(element.currentTime);
 
             if (completed) return;
             if (current - lastSave < 10) return;
 
             lastSave = current;
-            await saveProgress();
+            await saveProgress(element);
         }
 
         async function handleEnded() {
-            await saveProgress();
+            await saveProgress(element);
         }
 
         function handlePageLeave() {
-            saveProgress();
+            void saveProgress(element);
         }
 
-        currentVideo.addEventListener("timeupdate", handleTimeUpdate);
-        currentVideo.addEventListener("ended", handleEnded);
+        element.addEventListener("timeupdate", handleTimeUpdate);
+        element.addEventListener("ended", handleEnded);
         window.addEventListener("beforeunload", handlePageLeave);
 
         return () => {
-            currentVideo.removeEventListener("timeupdate", handleTimeUpdate);
-            currentVideo.removeEventListener("ended", handleEnded);
+            element.removeEventListener("timeupdate", handleTimeUpdate);
+            element.removeEventListener("ended", handleEnded);
             window.removeEventListener("beforeunload", handlePageLeave);
         };
     }, [lessonId, courseId]);
