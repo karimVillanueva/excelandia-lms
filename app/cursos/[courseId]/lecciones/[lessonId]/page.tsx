@@ -2,6 +2,8 @@ import { directus } from "@/lib/directus";
 import { readItem } from "@directus/sdk";
 import HlsPlayer from "@/app/components/video/HlsPlayer";
 import Link from "next/link";
+import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
 
 interface Props {
     params: Promise<{
@@ -11,6 +13,9 @@ interface Props {
 }
 
 async function getNavigation(lessonId: string) {
+    const cookieStore = await cookies();
+    const cookieHeader = cookieStore.toString();
+
     const baseUrl =
         process.env.NEXT_PUBLIC_APP_URL ??
         process.env.VERCEL_URL ??
@@ -22,6 +27,9 @@ async function getNavigation(lessonId: string) {
 
     const response = await fetch(url, {
         cache: "no-store",
+        headers: {
+            Cookie: cookieHeader,
+        },
     });
 
     if (!response.ok) {
@@ -30,7 +38,6 @@ async function getNavigation(lessonId: string) {
 
     return response.json();
 }
-
 export default async function StudentLessonPage({ params }: Props) {
     const { courseId, lessonId } = await params;
 
@@ -47,6 +54,14 @@ export default async function StudentLessonPage({ params }: Props) {
     );
 
     const navigation = await getNavigation(lessonId);
+
+    const currentNavigationLesson = navigation?.modules
+        ?.flatMap((module: any) => module.lessons)
+        ?.find((item: any) => item.id === lessonId);
+
+    if (currentNavigationLesson?.isLocked) {
+        redirect("/dashboard");
+    }
 
     return (
         <main className="min-h-screen bg-[#02070F] text-white">
@@ -157,8 +172,8 @@ export default async function StudentLessonPage({ params }: Props) {
                                                 key={item.id}
                                                 href={item.href}
                                                 className={`block rounded-2xl border px-4 py-3 text-sm transition ${item.isCurrent
-                                                        ? "border-emerald-400/70 bg-emerald-400/10 text-emerald-200"
-                                                        : "border-slate-800 bg-[#02070F]/80 text-slate-400 hover:border-slate-600 hover:text-white"
+                                                    ? "border-emerald-400/70 bg-emerald-400/10 text-emerald-200"
+                                                    : "border-slate-800 bg-[#02070F]/80 text-slate-400 hover:border-slate-600 hover:text-white"
                                                     }`}
                                             >
                                                 <div className="flex items-start gap-3">
