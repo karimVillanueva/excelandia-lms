@@ -59,27 +59,19 @@ export default async function LessonPage({ params }: Props) {
 
     return (
         <main className="min-h-screen bg-[#02070F] text-white">
-            <AdminHeader
-                title={lesson.title}
-                description="Administra el video y los materiales descargables."
-                backHref={`/admin/cursos/${lesson.course_id}/contenido`}
-                backLabel="Volver al contenido"
-            />
             <section className="mx-auto max-w-5xl px-6 py-10">
+                <AdminHeader
+                    title={lesson.title}
+                    description="Administra el video y los materiales descargables."
+                    backHref={`/admin/cursos/${lesson.course_id}/contenido`}
+                    backLabel="Volver al contenido"
+                />
                 <Link
                     href="/admin/cursos"
                     className="text-sm text-slate-400 hover:text-emerald-300"
                 >
                     ← Volver a cursos
                 </Link>
-
-                <header className="mt-6 mb-10">
-                    <p className="text-sm font-bold uppercase tracking-[0.35em] text-emerald-400">
-                        Lección
-                    </p>
-
-                    <h1 className="mt-4 text-5xl font-black">{lesson.title}</h1>
-                </header>
 
                 <form action={updateLesson.bind(null, id)} className="space-y-8">
                     <div className="rounded-3xl border border-slate-800 bg-slate-900/50 p-8">
