@@ -9,6 +9,7 @@ interface Props {
     backHref?: string;
     backLabel?: string;
     actions?: React.ReactNode;
+    showLogout?: boolean;
 }
 
 export default function AdminHeader({
@@ -18,6 +19,7 @@ export default function AdminHeader({
     backHref,
     backLabel = "Volver",
     actions,
+    showLogout = true,
 }: Props) {
     return (
         <header className="mb-10 flex flex-col gap-6 md:flex-row md:items-start md:justify-between">
@@ -49,12 +51,14 @@ export default function AdminHeader({
             <div className="flex flex-wrap items-center gap-3">
                 {actions}
 
-                <a
-                    href="/api/logout"
-                    className="rounded-2xl border border-red-500/40 bg-red-500/5 px-5 py-3 font-bold text-red-300 transition hover:bg-red-500/10"
-                >
-                    Cerrar sesión
-                </a>
+                {showLogout && (
+                    <a
+                        href="/api/logout"
+                        className="rounded-2xl border border-red-500/40 bg-red-500/5 px-5 py-3 font-bold text-red-300 transition hover:bg-red-500/10"
+                    >
+                        Cerrar sesión
+                    </a>
+                )}
             </div>
         </header>
     );
