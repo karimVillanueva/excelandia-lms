@@ -179,18 +179,40 @@ export async function GET(request: NextRequest, { params }: Props) {
 
         const modulesWithLessons = modules.map((module) => {
             const moduleLessons = orderedLessons
-                .filter((lesson) => getRelationId(lesson.module_id) === module.id)
-                .map((lesson) => {
-                    const lessonProgress = progressByLesson.get(lesson.id);
+                .filter(
+                    (lesson) =>
+                        getRelationId(lesson.module_id) === module.id
+                )
+                .map((lesson, index, arr) => {
+                    const lessonProgress =
+                        progressByLesson.get(lesson.id);
+
+                    let isLocked = false;
+
+                    if (index > 0) {
+                        const previousLesson = arr[index - 1];
+                        const previousProgress =
+                            progressByLesson.get(
+                                previousLesson.id
+                            );
+
+                        isLocked =
+                            previousProgress?.completed !== true;
+                    }
 
                     return {
                         id: lesson.id,
                         title: lesson.title,
                         status: lesson.status,
                         isCurrent: lesson.id === lessonId,
-                        completed: lessonProgress?.completed === true,
-                        watchPercent: lessonProgress?.watch_percent ?? 0,
-                        href: `/cursos/${courseId}/lecciones/${lesson.id}`,
+                        completed:
+                            lessonProgress?.completed === true,
+                        watchPercent:
+                            lessonProgress?.watch_percent ?? 0,
+                        isLocked,
+                        href: isLocked
+                            ? null
+                            : `/cursos/${courseId}/lecciones/${lesson.id}`,
                     };
                 });
 

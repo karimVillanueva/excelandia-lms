@@ -134,32 +134,51 @@ export default async function StudentLessonPage({ params }: Props) {
                                 </h3>
 
                                 <div className="space-y-2">
-                                    {module.lessons.map((item: any) => (
-                                        <Link
-                                            key={item.id}
-                                            href={item.href}
-                                            className={`block rounded-2xl border px-4 py-3 text-sm transition ${item.isCurrent
-                                                    ? "border-emerald-400/70 bg-emerald-400/10 text-emerald-200"
-                                                    : "border-slate-800 bg-[#02070F]/80 text-slate-400 hover:border-slate-600 hover:text-white"
-                                                }`}
-                                        >
-                                            <div className="flex items-start gap-3">
-                                                <span className="mt-0.5">
-                                                    {item.completed ? "✅" : item.isCurrent ? "▶" : "○"}
-                                                </span>
+                                    {module.lessons.map((item: any) =>
+                                        item.isLocked ? (
+                                            <div
+                                                key={item.id}
+                                                className="block rounded-2xl border border-slate-800 bg-[#02070F]/80 px-4 py-3 text-sm text-slate-500 opacity-70"
+                                            >
+                                                <div className="flex items-start gap-3">
+                                                    <span>🔒</span>
 
-                                                <div>
-                                                    <p className="font-semibold">{item.title}</p>
+                                                    <div>
+                                                        <p className="font-semibold">{item.title}</p>
 
-                                                    {item.watchPercent > 0 && !item.completed && (
-                                                        <p className="mt-1 text-xs text-slate-500">
-                                                            {item.watchPercent}% visto
+                                                        <p className="mt-1 text-xs">
+                                                            Completa la lección anterior
                                                         </p>
-                                                    )}
+                                                    </div>
                                                 </div>
                                             </div>
-                                        </Link>
-                                    ))}
+                                        ) : (
+                                            <Link
+                                                key={item.id}
+                                                href={item.href}
+                                                className={`block rounded-2xl border px-4 py-3 text-sm transition ${item.isCurrent
+                                                        ? "border-emerald-400/70 bg-emerald-400/10 text-emerald-200"
+                                                        : "border-slate-800 bg-[#02070F]/80 text-slate-400 hover:border-slate-600 hover:text-white"
+                                                    }`}
+                                            >
+                                                <div className="flex items-start gap-3">
+                                                    <span className="mt-0.5">
+                                                        {item.completed ? "✅" : item.isCurrent ? "▶" : "○"}
+                                                    </span>
+
+                                                    <div>
+                                                        <p className="font-semibold">{item.title}</p>
+
+                                                        {item.watchPercent > 0 && !item.completed && (
+                                                            <p className="mt-1 text-xs text-slate-500">
+                                                                {item.watchPercent}% visto
+                                                            </p>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                            </Link>
+                                        )
+                                    )}
                                 </div>
                             </div>
                         ))}
