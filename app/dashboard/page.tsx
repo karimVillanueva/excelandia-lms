@@ -65,6 +65,8 @@ export default function DashboardPage() {
     const displayName = dashboard.student
         ? `${dashboard.student.first_name} ${dashboard.student.last_name}`
         : dashboard.account?.email;
+    const certificates = dashboard.certificates ?? [];
+    const directusUrl = "https://academy.ouhnou.technology";
 
     return (
         <main className="relative min-h-screen overflow-hidden bg-[#02070F] text-white">
@@ -227,13 +229,13 @@ export default function DashboardPage() {
                         <h2 className="text-3xl font-black">Mis certificados</h2>
                     </div>
 
-                    {dashboard.certificates?.length === 0 ? (
+                    {certificates.length === 0 ? (
                         <div className="rounded-3xl border border-dashed border-slate-700 bg-slate-900/40 p-8 text-center text-slate-400">
                             Todavía no tienes certificados emitidos.
                         </div>
                     ) : (
                         <div className="grid gap-6 md:grid-cols-2">
-                            {dashboard.certificates.map((certificate: any) => (
+                            {certificates.map((certificate: any) => (
                                 <article
                                     key={certificate.id}
                                     className="rounded-3xl border border-emerald-400/20 bg-slate-900/70 p-6 backdrop-blur"
@@ -265,7 +267,7 @@ export default function DashboardPage() {
                                     <div className="mt-6 flex flex-col gap-3 sm:flex-row">
                                         {certificate.pdf_file?.id && (
                                             <a
-                                                href={`${process.env.NEXT_PUBLIC_DIRECTUS_URL}/assets/${certificate.pdf_file.id}?download`}
+                                                href={`${directusUrl}/assets/${certificate.pdf_file.id}?download`}
                                                 target="_blank"
                                                 rel="noreferrer"
                                                 className="rounded-2xl bg-emerald-400 px-5 py-3 text-center font-bold text-slate-950 transition hover:bg-emerald-300"
