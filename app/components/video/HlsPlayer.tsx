@@ -1,11 +1,7 @@
 "use client";
 
 import Hls from "hls.js";
-import {
-    useEffect,
-    useRef,
-    useState,
-} from "react";
+import { useEffect, useRef, useState } from "react";
 
 interface Props {
     lessonId: string;
@@ -13,39 +9,22 @@ interface Props {
     src: string;
 }
 
-export default function HlsPlayer({
-    lessonId,
-    courseId,
-    src,
-}: Props) {
+export default function HlsPlayer({ lessonId, courseId, src }: Props) {
     const videoRef = useRef<HTMLVideoElement>(null);
-    const [initialPosition, setInitialPosition] =
-        useState(0);
+    const [initialPosition, setInitialPosition] = useState(0);
 
-    //
-    // Cargar progreso guardado
-    //
+    // 1. Cargar progreso guardado
     useEffect(() => {
         async function loadProgress() {
             try {
-                const response = await fetch(
-                    `/api/lessons/${lessonId}/progress`
-                );
+                const response = await fetch(`/api/lessons/${lessonId}/progress`);
 
-                if (!response.ok) {
-                    return;
-                }
+                if (!response.ok) return;
 
                 const data = await response.json();
 
-                if (
-                    data.progress?.last_position
-                ) {
-                    setInitialPosition(
-                        Number(
-                            data.progress.last_position
-                        )
-                    );
+                if (data.progress?.last_position) {
+                    setInitialPosition(Number(data.progress.last_position));
                 }
             } catch (error) {
                 console.error(error);
@@ -55,38 +34,77 @@ export default function HlsPlayer({
         loadProgress();
     }, [lessonId]);
 
-    //
-    // Inicializar HLS
-    //
+    // 2. Inicializar HLS
     useEffect(() => {
         const video = videoRef.current;
 
-        if (!video) {
-            return;
+        if (!video) return;
+
+        let hls: Hls | undefined;
+
+        video.src = "";
+
+        if (video.canPlayType("application/vnd.apple.mpegurl")) {
+            video.src = src;
+        } else if (Hls.isSupported()) {
+            hls = new Hls({
+                enableWorker: true,
+            });
+
+            hls.loadSource(src);
+            hls.attachMedia(video);
+
+            hls.on(Hls.Events.ERROR, (_, data) => {
+                console.error("HLS error:", data);
+            });
+        } else {
+            console.error("HLS no soportado en este navegador");
         }
+
+        const handleLoadedMetadata = () => {
+            if (initialPosition > 0 && initialPosition < video.duration) {
+                video.currentTime = initialPosition;
+            }
+        };
+
+        video.addEventListener("loadedmetadata", handleLoadedMetadata);
+
+        return () => {
+            video.removeEventListener("loadedmetadata", handleLoadedMetadata);
+            hls?.destroy();
+        };
+    }, [src, initialPosition]);
+
+    // 3. Guardar progreso
+    useEffect(() => {
+        const video = videoRef.current;
+
+        if (!video) return;
 
         let lastSave = 0;
         let completed = false;
 
-        const saveProgress = async () => {
+        async function saveProgress() {
             const current = Math.floor(video.currentTime);
+            const duration = Math.floor(video.duration || 0);
+
+            if (!duration || Number.isNaN(duration)) return;
 
             try {
-                const response = await fetch(
-                    `/api/lessons/${lessonId}/progress`,
-                    {
-                        method: "POST",
-                        headers: {
-                            "Content-Type": "application/json",
-                        },
-                        body: JSON.stringify({
-                            course_id: courseId,
-                            last_position: current,
-                            watched_seconds: current,
-                            duration: Math.floor(video.duration),
-                        }),
-                    }
-                );
+                const response = await fetch(`/api/lessons/${lessonId}/progress`, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({
+                        course_id: courseId,
+                        last_position: current,
+                        watched_seconds: current,
+                        duration,
+                    }),
+                });
+
+                if (!response.ok) return;
 
                 const data = await response.json();
 
@@ -96,131 +114,34 @@ export default function HlsPlayer({
             } catch (error) {
                 console.error(error);
             }
-        };
-
-        const handleTimeUpdate = async () => {
-            const current = Math.floor(video.currentTime);
-
-            if (completed) {
-                return;
-            }
-
-            if (current - lastSave < 10) {
-                return;
-            }
-
-            lastSave = current;
-
-            await saveProgress();
-        };
-
-        const handleEnded = async () => {
-            await saveProgress();
-        };
-
-        const handlePageLeave = async () => {
-            await saveProgress();
-        };
-
-        video.addEventListener(
-            "timeupdate",
-            handleTimeUpdate
-        );
-
-        video.addEventListener(
-            "ended",
-            handleEnded
-        );
-
-        window.addEventListener(
-            "beforeunload",
-            handlePageLeave
-        );
-
-        return () => {
-            video.removeEventListener(
-                "timeupdate",
-                handleTimeUpdate
-            );
-
-            video.removeEventListener(
-                "ended",
-                handleEnded
-            );
-
-            window.removeEventListener(
-                "beforeunload",
-                handlePageLeave
-            );
-        };
-    }, [lessonId, courseId]);
-
-    //
-    // Guardar progreso cada 10 segundos
-    //
-    useEffect(() => {
-        const video = videoRef.current;
-
-        if (!video) {
-            return;
         }
 
-        let lastSave = 0;
+        async function handleTimeUpdate() {
+            const current = Math.floor(video.currentTime);
 
-        const handleTimeUpdate =
-            async () => {
-                const current =
-                    Math.floor(
-                        video.currentTime
-                    );
+            if (completed) return;
+            if (current - lastSave < 10) return;
 
-                if (
-                    current - lastSave <
-                    10
-                ) {
-                    return;
-                }
+            lastSave = current;
+            await saveProgress();
+        }
 
-                lastSave = current;
+        async function handleEnded() {
+            await saveProgress();
+        }
 
-                try {
-                    await fetch(
-                        `/api/lessons/${lessonId}/progress`,
-                        {
-                            method: "POST",
-                            headers: {
-                                "Content-Type":
-                                    "application/json",
-                            },
-                            body: JSON.stringify({
-                                course_id:
-                                    courseId,
-                                last_position:
-                                    current,
-                                watched_seconds:
-                                    current,
-                                duration:
-                                    Math.floor(
-                                        video.duration
-                                    ),
-                            }),
-                        }
-                    );
-                } catch (error) {
-                    console.error(error);
-                }
-            };
+        function handlePageLeave() {
+            saveProgress();
+        }
 
-        video.addEventListener(
-            "timeupdate",
-            handleTimeUpdate
-        );
+        video.addEventListener("timeupdate", handleTimeUpdate);
+        video.addEventListener("ended", handleEnded);
+        window.addEventListener("beforeunload", handlePageLeave);
 
         return () => {
-            video.removeEventListener(
-                "timeupdate",
-                handleTimeUpdate
-            );
+            video.removeEventListener("timeupdate", handleTimeUpdate);
+            video.removeEventListener("ended", handleEnded);
+            window.removeEventListener("beforeunload", handlePageLeave);
         };
     }, [lessonId, courseId]);
 
