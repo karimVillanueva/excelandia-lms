@@ -1,9 +1,10 @@
 "use client";
 
-import { useMe } from "@/hooks/useMe";
+import { useEffect, useState } from "react";
 
 export default function DashboardPage() {
-    const { me, loading } = useMe();
+    const [dashboard, setDashboard] = useState<any>(null);
+    const [loading, setLoading] = useState(true);
 
     async function logout() {
         const response = await fetch("/api/logout", {
@@ -13,6 +14,29 @@ export default function DashboardPage() {
         const data = await response.json();
         window.location.href = data.logoutUrl;
     }
+
+    useEffect(() => {
+        async function loadDashboard() {
+            try {
+                const response = await fetch("/api/dashboard");
+
+                if (!response.ok) {
+                    setDashboard(null);
+                    return;
+                }
+
+                const data = await response.json();
+                setDashboard(data);
+            } catch (error) {
+                console.error(error);
+                setDashboard(null);
+            } finally {
+                setLoading(false);
+            }
+        }
+
+        loadDashboard();
+    }, []);
 
     if (loading) {
         return (
@@ -24,7 +48,7 @@ export default function DashboardPage() {
         );
     }
 
-    if (!me) {
+    if (!dashboard) {
         return (
             <main className="flex min-h-screen items-center justify-center bg-[#02070F] text-white">
                 <div className="rounded-3xl border border-red-500/30 bg-red-500/10 p-8 text-center">
@@ -37,10 +61,10 @@ export default function DashboardPage() {
         );
     }
 
-    const enrollments = me.enrollments ?? [];
-    const displayName = me.student
-        ? `${me.student.first_name} ${me.student.last_name}`
-        : me.email;
+    const courses = dashboard.courses ?? [];
+    const displayName = dashboard.student
+        ? `${dashboard.student.first_name} ${dashboard.student.last_name}`
+        : dashboard.account?.email;
 
     return (
         <main className="relative min-h-screen overflow-hidden bg-[#02070F] text-white">
@@ -54,11 +78,13 @@ export default function DashboardPage() {
                         <p className="logo-font text-sm font-bold uppercase tracking-[0.35em] text-emerald-400">
                             Academia Excelandia
                         </p>
+
                         <h1 className="mt-4 text-4xl font-black md:text-5xl">
                             Hola, {displayName}
                         </h1>
+
                         <p className="mt-2 text-slate-400">
-                            Este es tu espacio de aprendizaje.
+                            Continúa aprendiendo desde donde te quedaste.
                         </p>
                     </div>
 
@@ -71,18 +97,16 @@ export default function DashboardPage() {
                 </header>
 
                 <div className="grid gap-6 md:grid-cols-3">
-                    <div className="rounded-3xl border border-slate-800 bg-slate-900/60 p-6 backdrop-blur transition hover:-translate-y-1 hover:border-emerald-400/60">
+                    <div className="rounded-3xl border border-slate-800 bg-slate-900/60 p-6 backdrop-blur">
                         <p className="text-sm text-slate-400">Estado de cuenta</p>
                         <h2 className="mt-3 text-2xl font-bold text-emerald-300">
-                            {me.account?.status ?? "Sin estado"}
+                            {dashboard.account?.status ?? "Sin estado"}
                         </h2>
                     </div>
 
-                    <div className="rounded-3xl border border-slate-800 bg-slate-900/60 p-6 backdrop-blur transition hover:-translate-y-1 hover:border-emerald-400/60">
+                    <div className="rounded-3xl border border-slate-800 bg-slate-900/60 p-6 backdrop-blur">
                         <p className="text-sm text-slate-400">Cursos activos</p>
-                        <h2 className="mt-3 text-2xl font-bold">
-                            {enrollments.length}
-                        </h2>
+                        <h2 className="mt-3 text-2xl font-bold">{courses.length}</h2>
                     </div>
 
                     <a
@@ -97,6 +121,7 @@ export default function DashboardPage() {
                 <section className="mt-12">
                     <div className="mb-5 flex items-center justify-between">
                         <h2 className="text-3xl font-black">Mis cursos</h2>
+
                         <a
                             href="https://www.excelandia.com/tienda"
                             className="text-sm font-semibold text-emerald-400 transition hover:text-emerald-300"
@@ -105,11 +130,12 @@ export default function DashboardPage() {
                         </a>
                     </div>
 
-                    {enrollments.length === 0 ? (
+                    {courses.length === 0 ? (
                         <div className="rounded-3xl border border-dashed border-slate-700 bg-slate-900/40 p-10 text-center backdrop-blur">
                             <p className="text-xl font-bold">
                                 Todavía no tienes cursos activos
                             </p>
+
                             <p className="mx-auto mt-3 max-w-xl text-slate-400">
                                 Cuando compres un material o se active tu inscripción, aparecerá
                                 aquí automáticamente.
@@ -124,42 +150,73 @@ export default function DashboardPage() {
                         </div>
                     ) : (
                         <div className="grid gap-6 md:grid-cols-3">
-                            {enrollments.map((enrollment) => (
+                            {courses.map((item: any) => (
                                 <article
-                                    key={enrollment.id}
+                                    key={item.enrollment.id}
                                     className="group rounded-3xl border border-slate-800 bg-slate-900/70 p-6 backdrop-blur transition hover:-translate-y-2 hover:border-emerald-400/70 hover:shadow-[0_0_40px_rgba(52,211,153,0.12)]"
                                 >
                                     <div className="mb-5 h-32 rounded-2xl bg-gradient-to-br from-emerald-400/20 to-cyan-400/10 transition group-hover:scale-[1.02]" />
 
                                     <h3 className="text-xl font-bold">
-                                        {enrollment.course_id?.title ?? "Curso sin título"}
+                                        {item.course?.title ?? "Curso sin título"}
                                     </h3>
 
                                     <p className="mt-3 text-sm text-slate-400">
-                                        Estado: {enrollment.status}
+                                        Estado: {item.enrollment.status}
                                     </p>
 
-                                    <p className="mt-2 text-sm text-slate-500">
-                                        Vigencia:
-                                    </p>
+                                    <div className="mt-5">
+                                        <div className="mb-2 flex items-center justify-between text-sm">
+                                            <span className="text-slate-400">Progreso</span>
+                                            <span className="font-bold text-emerald-300">
+                                                {item.progressPercent}%
+                                            </span>
+                                        </div>
+
+                                        <div className="h-3 overflow-hidden rounded-full bg-slate-800">
+                                            <div
+                                                className="h-full rounded-full bg-emerald-400 transition-all"
+                                                style={{ width: `${item.progressPercent}%` }}
+                                            />
+                                        </div>
+
+                                        <p className="mt-2 text-xs text-slate-500">
+                                            {item.completedLessons} de {item.totalLessons} lecciones
+                                            completadas
+                                        </p>
+                                    </div>
+
+                                    <p className="mt-5 text-sm text-slate-500">Vigencia:</p>
 
                                     <p className="text-sm text-slate-300">
-                                        {enrollment.starts_at
-                                            ? new Date(enrollment.starts_at).toLocaleDateString(
+                                        {item.enrollment.starts_at
+                                            ? new Date(item.enrollment.starts_at).toLocaleDateString(
                                                 "es-MX"
                                             )
                                             : "Sin fecha de inicio"}{" "}
                                         —{" "}
-                                        {enrollment.ends_at
-                                            ? new Date(enrollment.ends_at).toLocaleDateString(
+                                        {item.enrollment.ends_at
+                                            ? new Date(item.enrollment.ends_at).toLocaleDateString(
                                                 "es-MX"
                                             )
                                             : "Sin fecha de fin"}
                                     </p>
 
-                                    <button className="mt-6 w-full rounded-2xl bg-emerald-400 px-5 py-3 font-bold text-slate-950 transition hover:bg-emerald-300">
-                                        Entrar al curso
-                                    </button>
+                                    {item.continueUrl ? (
+                                        <a
+                                            href={item.continueUrl}
+                                            className="mt-6 block w-full rounded-2xl bg-emerald-400 px-5 py-3 text-center font-bold text-slate-950 transition hover:bg-emerald-300"
+                                        >
+                                            Continuar curso
+                                        </a>
+                                    ) : (
+                                        <button
+                                            disabled
+                                            className="mt-6 w-full rounded-2xl bg-slate-800 px-5 py-3 font-bold text-slate-500"
+                                        >
+                                            Sin lecciones disponibles
+                                        </button>
+                                    )}
                                 </article>
                             ))}
                         </div>
