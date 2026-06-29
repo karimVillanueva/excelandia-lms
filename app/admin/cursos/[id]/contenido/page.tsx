@@ -62,33 +62,13 @@ export default async function CourseContentPage({
 
     return (
         <main className="min-h-screen bg-[#02070F] text-white">
-            <AdminHeader
-                title="Contenido del curso"
-                description={`Administra módulos y lecciones de ${course.title}`}
-                backHref={`/admin/cursos/${course.id}`}
-                backLabel="Editar curso"
-            />
             <section className="mx-auto max-w-6xl px-6 py-10">
-                <Link
-                    href={`/admin/cursos/${id}`}
-                    className="text-sm text-slate-400 hover:text-emerald-300"
-                >
-                    ← Volver al curso
-                </Link>
-
-                <header className="mt-6 mb-12">
-                    <p className="text-sm font-bold uppercase tracking-[0.35em] text-emerald-400">
-                        Constructor de contenido
-                    </p>
-
-                    <h1 className="mt-4 text-5xl font-black">
-                        {course.title}
-                    </h1>
-
-                    <p className="mt-3 text-slate-400">
-                        Organiza módulos y lecciones del curso.
-                    </p>
-                </header>
+                <AdminHeader
+                    title="Contenido del curso"
+                    description={`Administra módulos y lecciones de ${course.title}`}
+                    backHref={`/admin/cursos/${course.id}`}
+                    backLabel="Editar curso"
+                />
 
                 {/* Crear módulo */}
 
