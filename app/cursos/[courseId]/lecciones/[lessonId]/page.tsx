@@ -52,7 +52,11 @@ export default async function StudentLessonPage({ params }: Props) {
                 </header>
 
                 {lesson.video_status === "ready" && lesson.video_hls_path ? (
-                    <HlsPlayer src={`/api/lessons/${lessonId}/hls`} />
+                    <HlsPlayer
+                        lessonId={lessonId}
+                        courseId={courseId}
+                        src={`/api/lessons/${lessonId}/hls`}
+                    />
                 ) : (
                     <div className="rounded-3xl border border-dashed border-slate-700 p-10 text-center text-slate-400">
                         Este video todavía no está disponible.
