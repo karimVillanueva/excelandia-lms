@@ -75,68 +75,123 @@ async function generateCertificatePdf({
     const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
     const bold = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
 
-    page.drawText("ACADEMIA EXCELANDIA", {
-        x: 250,
-        y: 500,
-        size: 24,
-        font: bold,
-        color: rgb(0.2, 0.9, 0.65),
+    const dark = rgb(0.02, 0.05, 0.09);
+    const panel = rgb(0.04, 0.09, 0.16);
+    const emerald = rgb(0.05, 0.83, 0.55);
+    const muted = rgb(0.58, 0.65, 0.75);
+    const white = rgb(1, 1, 1);
+
+    // Fondo
+    page.drawRectangle({
+        x: 0,
+        y: 0,
+        width: 842,
+        height: 595,
+        color: dark,
     });
 
-    page.drawText("Certificado de finalización", {
-        x: 260,
-        y: 455,
-        size: 22,
+    // Marco exterior
+    page.drawRectangle({
+        x: 42,
+        y: 42,
+        width: 758,
+        height: 511,
+        borderColor: emerald,
+        borderWidth: 2,
+    });
+
+    // Panel central
+    page.drawRectangle({
+        x: 80,
+        y: 90,
+        width: 682,
+        height: 415,
+        color: panel,
+        borderColor: rgb(0.08, 0.18, 0.28),
+        borderWidth: 1,
+    });
+
+    // Marca
+    page.drawText("ACADEMIA EXCELANDIA", {
+        x: 245,
+        y: 465,
+        size: 24,
         font: bold,
-        color: rgb(1, 1, 1),
+        color: emerald,
+    });
+
+    page.drawText("CERTIFICADO DE FINALIZACION", {
+        x: 255,
+        y: 425,
+        size: 16,
+        font: bold,
+        color: muted,
     });
 
     page.drawText("Se otorga el presente reconocimiento a:", {
         x: 285,
-        y: 400,
-        size: 14,
+        y: 375,
+        size: 13,
         font,
-        color: rgb(0.75, 0.78, 0.85),
+        color: muted,
     });
 
     page.drawText(studentName, {
-        x: 220,
-        y: 355,
-        size: 30,
+        x: Math.max(70, 421 - studentName.length * 8),
+        y: 325,
+        size: 28,
         font: bold,
-        color: rgb(1, 1, 1),
+        color: white,
     });
 
     page.drawText("Por haber completado satisfactoriamente el curso:", {
-        x: 245,
-        y: 310,
-        size: 14,
+        x: 250,
+        y: 275,
+        size: 13,
         font,
-        color: rgb(0.75, 0.78, 0.85),
+        color: muted,
     });
 
     page.drawText(courseTitle, {
-        x: 280,
-        y: 265,
-        size: 26,
+        x: Math.max(70, 421 - courseTitle.length * 8),
+        y: 225,
+        size: 34,
         font: bold,
-        color: rgb(0.2, 0.9, 0.65),
+        color: emerald,
     });
 
-    page.drawText(`Fecha: ${new Date(completedAt).toLocaleDateString("es-MX")}`, {
-        x: 90,
-        y: 120,
-        size: 12,
-        font,
-        color: rgb(0.75, 0.78, 0.85),
+    page.drawLine({
+        start: { x: 180, y: 178 },
+        end: { x: 662, y: 178 },
+        thickness: 1,
+        color: rgb(0.12, 0.22, 0.32),
     });
+
+    page.drawText(
+        `Fecha: ${new Date(completedAt).toLocaleDateString("es-MX")}`,
+        {
+            x: 105,
+            y: 125,
+            size: 12,
+            font,
+            color: muted,
+        }
+    );
 
     page.drawText(`Folio: ${certificateNumber}`, {
-        x: 90,
-        y: 95,
+        x: 105,
+        y: 100,
         size: 12,
         font,
-        color: rgb(0.75, 0.78, 0.85),
+        color: muted,
+    });
+
+    page.drawText("Certificado emitido digitalmente por Academia Excelandia", {
+        x: 465,
+        y: 100,
+        size: 10,
+        font,
+        color: muted,
     });
 
     return pdfDoc.save();
