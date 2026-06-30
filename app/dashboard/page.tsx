@@ -25,8 +25,7 @@ export default function DashboardPage() {
                     return;
                 }
 
-                const data = await response.json();
-                setDashboard(data);
+                setDashboard(await response.json());
             } catch (error) {
                 console.error(error);
                 setDashboard(null);
@@ -78,56 +77,61 @@ export default function DashboardPage() {
 
     const firstName = String(displayName ?? "").split(" ")[0] ?? "";
 
+    const mainProgress = courses[0]?.progressPercent ?? 0;
+
     return (
-        <main className="relative min-h-screen overflow-hidden bg-[#02070F] pb-20 text-white md:pb-0">
+        <main className="relative min-h-screen overflow-hidden bg-[#02070F] pb-28 text-white md:pb-0">
             <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,#0f766e44,transparent_32%),radial-gradient(circle_at_bottom_right,#22c55e22,transparent_34%)]" />
 
             <section className="relative z-10 mx-auto max-w-7xl px-4 py-5 sm:px-6 lg:px-8 lg:py-10">
-                <header className="mb-6 flex items-start justify-between gap-4">
+                <header className="mb-5 flex items-start justify-between gap-4">
                     <div>
-                        <p className="text-[12px] font-black uppercase tracking-[0.28em] text-slate-300 sm:text-sm">
+                        <p className="text-[13px] font-black uppercase tracking-[0.22em] text-slate-300 sm:text-sm sm:tracking-[0.3em]">
                             Academia{" "}
                             <span className="text-emerald-400">
                                 Excelandia
                             </span>
                         </p>
 
-                        <h1 className="mt-8 text-[2rem] font-black leading-tight sm:text-5xl lg:text-6xl">
+                        <h1 className="mt-5 text-[2.35rem] font-black leading-none sm:text-5xl lg:text-6xl">
                             Hola,{" "}
                             <span className="text-emerald-400">
                                 {firstName}
-                            </span>
+                            </span>{" "}
+                            👋
                         </h1>
 
                         <p className="mt-3 max-w-xl text-sm leading-relaxed text-slate-300 sm:text-lg">
-                            Continúa aprendiendo desde donde te quedaste.
+                            Tu próxima lección te espera.
                         </p>
                     </div>
 
                     <button
                         onClick={logout}
                         aria-label="Cerrar sesión"
-                        className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full border border-slate-700 bg-slate-900/70 text-xl text-slate-200 transition hover:border-emerald-400 hover:text-emerald-300 sm:h-auto sm:w-auto sm:rounded-2xl sm:px-5 sm:py-3 sm:text-sm sm:font-bold"
+                        className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-slate-900/80 text-xl text-slate-400 transition hover:text-white sm:h-auto sm:w-auto sm:rounded-2xl sm:border sm:border-slate-700 sm:px-5 sm:py-3 sm:text-sm sm:font-bold sm:text-slate-200"
                     >
                         <span className="sm:hidden">↪</span>
-                        <span className="hidden sm:inline">↪ Cerrar sesión</span>
+                        <span className="hidden sm:inline">
+                            ↪ Cerrar sesión
+                        </span>
                     </button>
                 </header>
 
                 {lastActivity && (
-                    <section className="mb-7 overflow-hidden rounded-[1.7rem] border border-emerald-400/30 bg-slate-900/75 p-5 shadow-[0_0_45px_rgba(16,185,129,0.12)] backdrop-blur lg:p-8">
-                        <div className="grid gap-6 lg:grid-cols-[1fr_220px] lg:items-center">
+                    <section className="mb-6 overflow-hidden rounded-[1.5rem] border border-emerald-400/30 bg-slate-900/75 p-4 shadow-[0_0_35px_rgba(16,185,129,0.12)] backdrop-blur sm:rounded-[1.7rem] sm:p-6 lg:p-8">
+                        <div className="grid gap-5 lg:grid-cols-[1fr_220px] lg:items-center">
                             <div>
-                                <p className="inline-flex rounded-full bg-emerald-400/10 px-3 py-1 text-[11px] font-black uppercase tracking-[0.22em] text-emerald-400 sm:text-sm">
+                                <p className="inline-flex rounded-full bg-emerald-400/10 px-3 py-1 text-[10px] font-black uppercase tracking-[0.22em] text-emerald-400 sm:text-sm">
                                     Continúa aprendiendo
                                 </p>
 
-                                <h2 className="mt-5 text-3xl font-black sm:text-4xl">
+                                <h2 className="mt-3 text-[2rem] font-black leading-none sm:text-4xl">
                                     {lastActivity.courseTitle}
                                 </h2>
 
-                                <div className="mt-5 flex items-center gap-3">
-                                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border border-emerald-400/40 bg-emerald-400/10 text-emerald-300">
+                                <div className="mt-4 flex items-center gap-3">
+                                    <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-emerald-400/40 bg-emerald-400/10 text-xs text-emerald-300 sm:h-11 sm:w-11">
                                         ▶
                                     </div>
 
@@ -141,11 +145,11 @@ export default function DashboardPage() {
                                     </div>
                                 </div>
 
-                                <div className="mt-5">
+                                <div className="mt-4">
                                     <p className="mb-2 flex justify-between text-xs text-slate-400">
                                         <span>Progreso</span>
                                         <span className="font-bold text-emerald-300">
-                                            {courses[0]?.progressPercent ?? 0}%
+                                            {mainProgress}%
                                         </span>
                                     </p>
 
@@ -153,9 +157,7 @@ export default function DashboardPage() {
                                         <div
                                             className="h-full rounded-full bg-emerald-400"
                                             style={{
-                                                width: `${courses[0]?.progressPercent ??
-                                                    0
-                                                    }%`,
+                                                width: `${mainProgress}%`,
                                             }}
                                         />
                                     </div>
@@ -163,7 +165,7 @@ export default function DashboardPage() {
 
                                 <a
                                     href={lastActivity.continueUrl}
-                                    className="mt-6 flex w-full items-center justify-center gap-3 rounded-2xl bg-emerald-400 px-5 py-3.5 text-sm font-black text-slate-950 transition hover:bg-emerald-300 sm:w-fit sm:px-8 sm:text-base"
+                                    className="mt-5 flex w-full items-center justify-center gap-3 rounded-2xl bg-emerald-400 px-5 py-3 text-sm font-black text-slate-950 transition hover:bg-emerald-300 sm:w-fit sm:px-8 sm:text-base"
                                 >
                                     ▶ Continuar lección
                                 </a>
@@ -178,28 +180,34 @@ export default function DashboardPage() {
                     </section>
                 )}
 
-                <section className="mb-8">
-                    <h2 className="mb-4 text-xl font-black sm:text-2xl">
-                        Resumen de tu aprendizaje
-                    </h2>
+                <details
+                    open
+                    className="mb-8 overflow-hidden rounded-[1.5rem] border border-slate-800 bg-slate-900/70 backdrop-blur sm:rounded-[1.7rem]"
+                >
+                    <summary className="flex cursor-pointer list-none items-center justify-between px-5 py-4 text-lg font-black">
+                        <span>Mi actividad</span>
+                        <span className="text-sm text-emerald-400">
+                            Ver resumen
+                        </span>
+                    </summary>
 
-                    <div className="overflow-hidden rounded-[1.7rem] border border-slate-800 bg-slate-900/70 backdrop-blur">
+                    <div className="border-t border-slate-800">
                         <SummaryRow
                             icon="●"
-                            label="Estado de cuenta"
+                            label="Estado"
                             value={dashboard.account?.status ?? "Sin estado"}
                             highlight
                         />
 
                         <SummaryRow
                             icon="◈"
-                            label="Cursos activos"
+                            label="Cursos"
                             value={courses.length}
                         />
 
                         <SummaryRow
                             icon="◷"
-                            label="Tiempo estudiado"
+                            label="Tiempo"
                             value={`${watchedHours}h ${watchedMinutes}m`}
                         />
 
@@ -211,9 +219,10 @@ export default function DashboardPage() {
 
                             <div className="min-w-0 flex-1">
                                 <p className="text-sm text-slate-400">
-                                    ¿Necesitas ayuda?
+                                    Ayuda
                                 </p>
-                                <p className="font-black text-emerald-300">
+
+                                <p className="font-bold text-emerald-300">
                                     Centro de ayuda
                                 </p>
                             </div>
@@ -221,9 +230,9 @@ export default function DashboardPage() {
                             <span className="text-xl text-emerald-300">↗</span>
                         </a>
                     </div>
-                </section>
+                </details>
 
-                <section className="mb-8">
+                <section id="cursos" className="mb-8">
                     <div className="mb-4 flex items-center justify-between">
                         <h2 className="text-2xl font-black sm:text-3xl">
                             Mis cursos
@@ -247,10 +256,10 @@ export default function DashboardPage() {
                             {courses.map((item: any) => (
                                 <article
                                     key={item.enrollment.id}
-                                    className="rounded-[1.7rem] border border-slate-800 bg-slate-900/70 p-4 backdrop-blur transition hover:border-emerald-400/60 sm:p-5"
+                                    className="rounded-[1.5rem] border border-slate-800 bg-slate-900/70 p-4 backdrop-blur transition hover:border-emerald-400/60 sm:rounded-[1.7rem] sm:p-5"
                                 >
                                     <div className="grid gap-4 sm:grid-cols-[140px_1fr] lg:grid-cols-[180px_1fr]">
-                                        <div className="flex min-h-28 items-end rounded-2xl bg-gradient-to-br from-emerald-400/20 via-teal-900/30 to-slate-950 p-4">
+                                        <div className="flex min-h-24 items-end rounded-2xl bg-gradient-to-br from-emerald-400/20 via-teal-900/30 to-slate-950 p-4 sm:min-h-28">
                                             <span className="text-2xl font-black text-emerald-300">
                                                 {item.course?.title ?? "Curso"}
                                             </span>
@@ -279,7 +288,7 @@ export default function DashboardPage() {
                                                 )}
                                             </div>
 
-                                            <div className="mt-5">
+                                            <div className="mt-4">
                                                 <div className="mb-2 flex justify-between text-sm">
                                                     <span className="text-slate-400">
                                                         Progreso
@@ -330,7 +339,7 @@ export default function DashboardPage() {
                                             {item.continueUrl && (
                                                 <a
                                                     href={item.continueUrl}
-                                                    className="mt-5 flex w-full items-center justify-center rounded-2xl bg-emerald-400 px-5 py-3 text-sm font-black text-slate-950 transition hover:bg-emerald-300 sm:hidden"
+                                                    className="mt-4 flex w-full items-center justify-center rounded-2xl bg-emerald-400 px-5 py-3 text-sm font-black text-slate-950 transition hover:bg-emerald-300 sm:hidden"
                                                 >
                                                     Continuar curso →
                                                 </a>
@@ -343,14 +352,14 @@ export default function DashboardPage() {
                     )}
                 </section>
 
-                <section>
+                <section id="certificados">
                     <div className="mb-4 flex items-center justify-between">
                         <h2 className="text-2xl font-black sm:text-3xl">
                             Mis certificados
                         </h2>
 
                         <a
-                            href="#"
+                            href="#certificados"
                             className="text-sm font-bold text-emerald-400"
                         >
                             Ver todos →
@@ -358,7 +367,7 @@ export default function DashboardPage() {
                     </div>
 
                     {certificates.length === 0 ? (
-                        <div className="flex items-center gap-4 rounded-[1.7rem] border border-slate-800 bg-slate-900/70 p-4">
+                        <div className="flex items-center gap-4 rounded-[1.5rem] border border-slate-800 bg-slate-900/70 p-4 sm:rounded-[1.7rem]">
                             <IconBubble>▤</IconBubble>
 
                             <div className="min-w-0 flex-1">
@@ -378,7 +387,7 @@ export default function DashboardPage() {
                             {certificates.map((certificate: any) => (
                                 <article
                                     key={certificate.id}
-                                    className="rounded-[1.7rem] border border-emerald-400/20 bg-slate-900/70 p-5"
+                                    className="rounded-[1.5rem] border border-emerald-400/20 bg-slate-900/70 p-5 sm:rounded-[1.7rem]"
                                 >
                                     <p className="text-xs font-black uppercase tracking-[0.22em] text-emerald-400">
                                         Certificado
@@ -433,7 +442,7 @@ export default function DashboardPage() {
                 </section>
             </section>
 
-            <nav className="fixed bottom-0 left-0 right-0 z-20 border-t border-slate-800 bg-[#02070F]/95 px-4 py-2 backdrop-blur md:hidden">
+            <nav className="fixed bottom-0 left-0 right-0 z-20 border-t border-slate-800 bg-[#02070F]/95 px-4 py-2 shadow-[0_-10px_40px_rgba(0,0,0,.45)] backdrop-blur-xl md:hidden">
                 <div className="mx-auto grid max-w-md grid-cols-4 text-center text-xs">
                     <a className="text-emerald-400" href="/dashboard">
                         <div className="text-xl">⌂</div>
@@ -504,7 +513,7 @@ function EmptyCard({
     text: string;
 }) {
     return (
-        <div className="rounded-[1.7rem] border border-dashed border-slate-700 bg-slate-900/50 p-5 text-center">
+        <div className="rounded-[1.5rem] border border-dashed border-slate-700 bg-slate-900/50 p-5 text-center sm:rounded-[1.7rem]">
             <p className="font-bold text-slate-200">{title}</p>
             <p className="mt-2 text-sm text-slate-400">{text}</p>
         </div>
