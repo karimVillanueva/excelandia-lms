@@ -417,7 +417,7 @@ export default function DashboardPage() {
                                     <div className="mt-5 flex flex-col gap-3 sm:flex-row">
                                         {certificate.pdf_file?.id && (
                                             <a
-                                                href={`${directusUrl}/assets/${certificate.pdf_file.id}?download`}
+                                                href={`/api/certificates/${certificate.id}/download`}
                                                 target="_blank"
                                                 rel="noreferrer"
                                                 className="rounded-2xl bg-emerald-400 px-5 py-3 text-center text-sm font-black text-slate-950"
