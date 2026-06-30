@@ -140,6 +140,31 @@ export async function POST(request: NextRequest, { params }: Props) {
             );
         }
 
+        if (completed) {
+            try {
+                const response = await fetch(
+                    `${process.env.NEXT_PUBLIC_APP_URL}/api/courses/${courseId}/certificate`,
+                    {
+                        method: "POST",
+                        headers: {
+                            cookie: request.headers.get("cookie") ?? "",
+                        },
+                    }
+                );
+
+                if (!response.ok) {
+                    console.error(
+                        "No se pudo generar el certificado"
+                    );
+                }
+            } catch (error) {
+                console.error(
+                    "Certificate generation error:",
+                    error
+                );
+            }
+        }
+
         return NextResponse.json({
             success: true,
             watch_percent: watchPercent,

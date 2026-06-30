@@ -124,13 +124,54 @@ export async function GET(request: NextRequest) {
             ])
         );
 
+        const totalWatchedSeconds = progress.reduce(
+            (sum: number, item: any) => sum + (Number(item.last_position) || 0),
+            0
+        );
+
+        const latestProgress = [...progress].sort((a: any, b: any) => {
+            return (
+                new Date(b.last_seen_at ?? 0).getTime() -
+                new Date(a.last_seen_at ?? 0).getTime()
+            );
+        })[0];
+
+        const latestLessonId =
+            typeof latestProgress?.lesson_id === "object"
+                ? latestProgress.lesson_id.id
+                : latestProgress?.lesson_id;
+
+        const latestLesson = latestLessonId
+            ? lessons.find((lesson: any) => lesson.id === latestLessonId)
+            : null;
+
+        const latestCourseId =
+            typeof latestProgress?.course_id === "object"
+                ? latestProgress.course_id.id
+                : latestProgress?.course_id;
+
+        const latestEnrollment = latestCourseId
+            ? enrollments.find((enrollment: any) => enrollment.course_id?.id === latestCourseId)
+            : null;
+
+        const lastActivity =
+            latestProgress && latestLesson && latestEnrollment
+                ? {
+                    lessonId: latestLesson.id,
+                    lessonTitle: latestLesson.title,
+                    courseId: latestEnrollment.course_id.id,
+                    courseTitle: latestEnrollment.course_id.title,
+                    lastSeenAt: latestProgress.last_seen_at,
+                    continueUrl: `/cursos/${latestEnrollment.course_id.id}/lecciones/${latestLesson.id}`,
+                }
+                : null;
+
         const dashboardCourses = enrollments.map((enrollment: any) => {
             const course = enrollment.course_id;
+
             const courseLessons = lessons.filter((lesson: any) => {
                 const lessonCourseId =
-                    typeof lesson.course_id === "object"
-                        ? lesson.course_id.id
-                        : lesson.course_id;
+                    typeof lesson.course_id === "object" ? lesson.course_id.id : lesson.course_id;
 
                 return lessonCourseId === course?.id;
             });
@@ -180,32 +221,31 @@ export async function GET(request: NextRequest) {
             };
         });
 
-        const certificates =
-            student
-                ? await directus.request(
-                    readItems("course_certificates", {
-                        filter: {
-                            student_id: {
-                                _eq: student.id,
-                            },
-                            status: {
-                                _eq: "issued",
-                            },
+        const certificates = student
+            ? await directus.request(
+                readItems("course_certificates", {
+                    filter: {
+                        student_id: {
+                            _eq: student.id,
                         },
-                        fields: [
-                            "id",
-                            "certificate_number",
-                            "verification_code",
-                            "completed_at",
-                            "course_id.id",
-                            "course_id.title",
-                            "pdf_file.id",
-                            "pdf_file.filename_download",
-                        ],
-                        limit: -1,
-                    })
-                )
-                : [];
+                        status: {
+                            _eq: "issued",
+                        },
+                    },
+                    fields: [
+                        "id",
+                        "certificate_number",
+                        "verification_code",
+                        "completed_at",
+                        "course_id.id",
+                        "course_id.title",
+                        "pdf_file.id",
+                        "pdf_file.filename_download",
+                    ],
+                    limit: -1,
+                })
+            )
+            : [];
 
         return NextResponse.json({
             authenticated: true,
@@ -213,6 +253,10 @@ export async function GET(request: NextRequest) {
             student,
             courses: dashboardCourses,
             certificates,
+            studyStats: {
+                watchedSeconds: totalWatchedSeconds,
+            },
+            lastActivity,
         });
     } catch (error) {
         console.error("GET /api/dashboard error:", error);
