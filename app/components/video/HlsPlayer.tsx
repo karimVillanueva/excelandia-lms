@@ -87,11 +87,14 @@ export default function HlsPlayer({
         }
 
         function handleLoadedMetadata() {
+            const currentElement = element;
+
             if (
+                currentElement &&
                 initialPosition > 0 &&
-                initialPosition < element.duration
+                initialPosition < currentElement.duration
             ) {
-                element.currentTime = initialPosition;
+                currentElement.currentTime = initialPosition;
             }
         }
 
@@ -124,12 +127,18 @@ export default function HlsPlayer({
         let completed = false;
 
         async function saveProgress() {
+            const progressElement = videoRef.current;
+
+            if (!progressElement) {
+                return;
+            }
+
             const current = Math.floor(
-                element.currentTime
+                progressElement.currentTime
             );
 
             const duration = Math.floor(
-                element.duration || 0
+                progressElement.duration || 0
             );
 
             if (
@@ -173,8 +182,14 @@ export default function HlsPlayer({
         }
 
         async function handleTimeUpdate() {
+            const progressElement = videoRef.current;
+
+            if (!progressElement) {
+                return;
+            }
+
             const current = Math.floor(
-                element.currentTime
+                progressElement.currentTime
             );
 
             if (completed) {
@@ -194,6 +209,12 @@ export default function HlsPlayer({
         }
 
         async function handleEnded() {
+            const progressElement = videoRef.current;
+
+            if (!progressElement) {
+                return;
+            }
+
             await saveProgress();
         }
 
