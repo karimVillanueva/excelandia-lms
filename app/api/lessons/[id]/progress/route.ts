@@ -101,6 +101,7 @@ export async function POST(request: NextRequest, { params }: Props) {
             duration > 0 ? Math.min(100, Math.round((lastPosition / duration) * 100)) : 0;
 
         const completed = watchPercent >= 90;
+        const courseId = body.course_id;
 
         const existing = await directus.request(
             readItems("Lesson_Progress", {
@@ -140,14 +141,20 @@ export async function POST(request: NextRequest, { params }: Props) {
             );
         }
 
-        if (completed) {
+        if (completed && courseId) {
             try {
+                const appUrl =
+                    process.env.NEXT_PUBLIC_APP_URL ??
+                    "http://localhost:3000";
+
                 const response = await fetch(
-                    `${process.env.NEXT_PUBLIC_APP_URL}/api/courses/${courseId}/certificate`,
+                    `${appUrl}/api/courses/${courseId}/certificate`,
                     {
                         method: "POST",
                         headers: {
-                            cookie: request.headers.get("cookie") ?? "",
+                            cookie:
+                                request.headers.get("cookie") ??
+                                "",
                         },
                     }
                 );
