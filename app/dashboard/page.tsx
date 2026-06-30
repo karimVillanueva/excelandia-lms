@@ -80,7 +80,7 @@ export default function DashboardPage() {
     const mainProgress = courses[0]?.progressPercent ?? 0;
 
     return (
-        <main className="relative min-h-screen overflow-hidden bg-[#02070F] pb-28 text-white md:pb-0">
+        <main className="relative min-h-screen overflow-hidden bg-[#02070F] pb-36 text-white md:pb-0">
             <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,#0f766e44,transparent_32%),radial-gradient(circle_at_bottom_right,#22c55e22,transparent_34%)]" />
 
             <section className="relative z-10 mx-auto max-w-7xl px-4 py-5 sm:px-6 lg:px-8 lg:py-10">
@@ -98,11 +98,10 @@ export default function DashboardPage() {
                             <span className="text-emerald-400">
                                 {firstName}
                             </span>{" "}
-                            👋
                         </h1>
 
                         <p className="mt-3 max-w-xl text-sm leading-relaxed text-slate-300 sm:text-lg">
-                            Tu próxima lección te espera.
+                            Tu próxima lección te espera 👋
                         </p>
                     </div>
 
@@ -232,7 +231,7 @@ export default function DashboardPage() {
                     </div>
                 </details>
 
-                <section id="cursos" className="mb-8">
+                <section id="cursos" className="mb-8 scroll-mt-6">
                     <div className="mb-4 flex items-center justify-between">
                         <h2 className="text-2xl font-black sm:text-3xl">
                             Mis cursos
@@ -352,7 +351,7 @@ export default function DashboardPage() {
                     )}
                 </section>
 
-                <section id="certificados">
+                <section id="certificados" className="scroll-mt-6">
                     <div className="mb-4 flex items-center justify-between">
                         <h2 className="text-2xl font-black sm:text-3xl">
                             Mis certificados
@@ -442,7 +441,7 @@ export default function DashboardPage() {
                 </section>
             </section>
 
-            <nav className="fixed bottom-0 left-0 right-0 z-20 border-t border-slate-800 bg-[#02070F]/95 px-4 py-2 shadow-[0_-10px_40px_rgba(0,0,0,.45)] backdrop-blur-xl md:hidden">
+            <nav className="fixed bottom-0 left-0 right-0 z-20 border-t border-slate-800 bg-[#02070F]/95 px-4 pb-[calc(0.75rem+env(safe-area-inset-bottom))] pt-2 shadow-[0_-10px_40px_rgba(0,0,0,.45)] backdrop-blur-xl md:hidden">
                 <div className="mx-auto grid max-w-md grid-cols-4 text-center text-xs">
                     <a className="text-emerald-400" href="/dashboard">
                         <div className="text-xl">⌂</div>
